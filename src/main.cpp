@@ -1,7 +1,27 @@
 #include <iostream>
 
-#include "GL/glew.h"
-#include "glfw/glfw3.h"
+#include "../glew/include/GL/glew.h"
+#include "../glfw/include/GLFW/glfw3.h"
+
+const bool DEBUG = false;
+
+void setWindowHints()
+{
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+}
+
+void handleKeyInput(GLFWwindow *window, int key, int status, int action, int mods)
+{
+  if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+  else {
+    DEBUG && std::cout << "key: " << key << "; status: " << status << "; action: " << action << "; mods: " << mods << std::endl;
+  }
+}
 
 int main(void)
 {
@@ -10,10 +30,7 @@ int main(void)
     std::cerr << "glfw init failed" << std::endl;
     return -1;
   }
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+  setWindowHints();
   GLFWwindow *window = glfwCreateWindow(1280, 720, "Grimlock", nullptr, nullptr);
   if (window == nullptr)
   {
@@ -22,6 +39,8 @@ int main(void)
     return -2;
   }
   glfwMakeContextCurrent(window);
+  glfwSetKeyCallback(window, handleKeyInput);
+
   glewExperimental = GL_TRUE;
   if (glewInit() != GLEW_OK)
   {
@@ -31,7 +50,7 @@ int main(void)
     return -3;
   }
 
-  glClearColor(0.3f, 0.3f, 0.4f, 1.0f);
+  glClearColor(0.15f, 0.15f, 0.2f, 1.0f);
   while (!glfwWindowShouldClose(window))
   {
     glfwPollEvents();
