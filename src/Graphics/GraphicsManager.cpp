@@ -24,7 +24,7 @@ GraphicsManager::GraphicsManager()
   }
 
   SetWindowHints();
-  GLFWwindow* window = glfwCreateWindow(1280, 720, "Grimlock", nullptr, nullptr);
+  window = glfwCreateWindow(1280, 720, "Grimlock", nullptr, nullptr);
   if (window == nullptr)
   {
     std::cerr << "GLFW window creation failed." << std::endl;
@@ -49,25 +49,19 @@ GraphicsManager::~GraphicsManager()
 void GraphicsManager::initialize()
 {
   glClearColor(0.15f, 0.15f, 0.2f, 1.0f);
+  int width, height;
+  glfwGetFramebufferSize(window, &width, &height);
+  glViewport(0, 0, 800, 800);
 }
 
 void GraphicsManager::tick(float dt)
 {
   glfwPollEvents();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
-  glViewport(0, 0, 800, 800);
-
   glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
-
   glfwSwapBuffers(window);
 }
 
-void GraphicsManager::draw()
-{
-  glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
-}
 
 void GraphicsManager::SetWindowHints()
 {

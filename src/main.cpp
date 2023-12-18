@@ -46,10 +46,9 @@ int main(void)
   graphicsManager->initialize();
   while (graphicsManager->isRunning())
   {
-    graphicsManager->tick(0);
-    shaderProgram->activate();
     vao1.bind();
-    graphicsManager->draw();
+    shaderProgram->activate();
+    graphicsManager->tick(0);
   }
 
   vao1.shutdown();

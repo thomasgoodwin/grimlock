@@ -10,7 +10,7 @@
 #define ENGDIR "../"
 #endif
 
-std::string GetFileContents(const std::string &filename)
+std::string GetFileContents(const std::string& filename)
 {
   std::ifstream file;
   std::string enginePath = ENGDIR + filename;

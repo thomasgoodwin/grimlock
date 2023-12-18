@@ -6,22 +6,20 @@ Shader::Shader(const std::string &vertexFile, const std::string &fragmentFile)
   GLuint vertexShader = CreateAndCompileShader(vertexFile, GL_VERTEX_SHADER);
   GLuint fragmentShader = CreateAndCompileShader(fragmentFile, GL_FRAGMENT_SHADER);
   ID = glCreateProgram();
-
-  int success;
-  glGetProgramiv(ID, GL_COMPILE_STATUS, &success);
-  if (!success)
-  {
-    char infoLog[512];
-    glGetProgramInfoLog(ID, 512, nullptr, infoLog);
-    std::cerr << "gl program link error: " << infoLog << std::endl;
-  }
-
   glAttachShader(ID, vertexShader);
   glAttachShader(ID, fragmentShader);
   glLinkProgram(ID);
 
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
+  int success;
+  glGetProgramiv(ID, GL_COMPILE_STATUS, &success);
+  if (success != 1)
+  {
+    char infoLog[2048];
+    glGetProgramInfoLog(ID, 2048, nullptr, infoLog);
+    std::cerr << "gl program link error: " << infoLog << std::endl;
+  }
+  //glDeleteShader(vertexShader);
+  //glDeleteShader(fragmentShader);
 }
 
 void Shader::activate()
@@ -36,7 +34,8 @@ void Shader::shutdown()
 
 GLuint Shader::CreateAndCompileShader(const std::string &shaderFile, GLuint shaderType)
 {
-  const char *shaderSource = GetFileContents(shaderFile).c_str();
+  std::string shaderScript = GetFileContents(shaderFile);
+  const char *shaderSource = shaderScript.c_str();
   GLuint shader = glCreateShader(shaderType);
 
   glShaderSource(shader, 1, &shaderSource, nullptr);
@@ -44,10 +43,10 @@ GLuint Shader::CreateAndCompileShader(const std::string &shaderFile, GLuint shad
 
   int success;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-  if (!success)
+  if (success != 1)
   {
-    char infoLog[512];
-    glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+    char infoLog[2048];
+    glGetShaderInfoLog(shader, 2048, nullptr, infoLog);
     std::cerr << "gl shader compilation error: " << infoLog << std::endl;
   }
 

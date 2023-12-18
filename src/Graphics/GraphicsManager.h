@@ -9,7 +9,6 @@ class GraphicsManager
     ~GraphicsManager();
     void initialize();
     void tick(float dt);
-    void draw();
     void render();
     void shutdown();
     bool isRunning();

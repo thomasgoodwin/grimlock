@@ -13,7 +13,6 @@ class Shader
   public:
     GLuint ID;
     Shader(const std::string &vertexFile, const std::string &fragmentFile);
-  
     void activate();
     void shutdown();
   
