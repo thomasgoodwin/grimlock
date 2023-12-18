@@ -2,166 +2,63 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cmath>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include "./Graphics/Shader.h"
+#include "./Graphics/EBO.h"
+#include "./Graphics/VAO.h"
+#include "./Graphics/VBO.h"
+#include "./Graphics/GraphicsManager.h"
 
-#include "../glew/include/GL/glew.h"
-#include "../glfw/include/GLFW/glfw3.h"
-
-const bool DEBUG = false;
-
-void setWindowHints()
-{
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-}
-
-void handleKeyInput(GLFWwindow *window, int key, int status, int action, int mods)
-{
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-  {
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-  }
-  else
-  {
-    DEBUG &&std::cout << "key: " << key << "; status: " << status << "; action: " << action << "; mods: " << mods << std::endl;
-  }
-}
-
-float vertices[] = {
-    -0.5f,
-    -0.5f,
-    0.0f,
-    0.5f,
-    -0.5f,
-    0.0f,
-    0.0f,
-    0.5f,
-    0.0f,
+GLfloat vertices[] =
+    {
+        -0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,    // Lower left corner
+        0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,     // Lower right corner
+        0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,  // Upper corner
+        -0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner left
+        0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,  // Inner right
+        0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f      // Inner down
 };
 
-std::string readFile(const std::string &fileLoc)
-{
-  std::ifstream file;
-  file.open(fileLoc, std::ios::in);
-  std::stringstream contents;
-  if (!file.fail())
-  {
-    contents << file.rdbuf();
-  }
-  else
-  {
-    std::cerr << "Failed to read file: " << fileLoc << std::endl;
-  }
-  return contents.str();
-}
+GLuint indices[] =
+    {
+        0, 3, 5,
+        3, 2, 4,
+        5, 4, 1};
 
-GLuint createAndCompileShader(const std::string &fileLoc, GLuint shaderType)
-{
-  const std::string shaderSource = readFile(fileLoc);
-  const char *cShader = shaderSource.c_str();
-  GLuint shader = glCreateShader(shaderType);
-
-  glShaderSource(shader, 1, &cShader, nullptr);
-  glCompileShader(shader);
-
-  int success;
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-  if (!success)
-  {
-    char infoLog[512];
-    glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-    std::cerr << "gl shader compilation error: " << infoLog << std::endl;
-  }
-
-  return shader;
-}
-
-GLuint createAndLinkProgram()
-{
-  GLuint vertexShader = createAndCompileShader("../shaders/simple.vert", GL_VERTEX_SHADER);
-  GLuint fragmentShader = createAndCompileShader("../shaders/simple.frag", GL_FRAGMENT_SHADER);
-  GLuint program = glCreateProgram();
-  glAttachShader(program, vertexShader);
-  glAttachShader(program, fragmentShader);
-  glLinkProgram(program);
-
-  int success;
-  glGetProgramiv(program, GL_COMPILE_STATUS, &success);
-  if (!success)
-  {
-    char infoLog[512];
-    glGetProgramInfoLog(program, 512, nullptr, infoLog);
-    std::cerr << "gl program link error: " << infoLog << std::endl;
-  }
-
-  return program;
-}
 
 int main(void)
 {
-  if (!glfwInit())
+  GraphicsManager* graphicsManager = new GraphicsManager();
+  Shader* shaderProgram = new Shader("assets/shaders/simple.vert", "assets/shaders/simple.frag");
+  VAO vao1;
+  vao1.bind();
+
+  VBO vbo1(vertices, sizeof(vertices));
+  EBO ebo1(indices, sizeof(indices));
+
+  vao1.linkVBO(vbo1, 0);
+  vao1.unbind();
+  vbo1.unbind();
+  ebo1.unbind();
+
+  graphicsManager->initialize();
+  while (graphicsManager->isRunning())
   {
-    std::cerr << "glfw init failed" << std::endl;
-    return -1;
+    graphicsManager->tick(0);
+    shaderProgram->activate();
+    vao1.bind();
+    graphicsManager->draw();
   }
 
-  setWindowHints();
-  GLFWwindow *window = glfwCreateWindow(1280, 720, "Grimlock", nullptr, nullptr);
-  if (window == nullptr)
-  {
-    std::cerr << "GLFW window creation failed." << std::endl;
-    glfwTerminate();
-    return -2;
-  }
-
-  glfwMakeContextCurrent(window);
-  glfwSetKeyCallback(window, handleKeyInput);
-  glewExperimental = GL_TRUE;
-  if (glewInit() != GLEW_OK)
-  {
-    std::cout << "GLEW init failed." << std::endl;
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    return -3;
-  }
-
-  GLuint shaderProgram = createAndLinkProgram();
-
-  GLuint VBO, VAO;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glBindVertexArray(VAO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-
-  glClearColor(0.15f, 0.15f, 0.2f, 1.0f);
-  while (!glfwWindowShouldClose(window))
-  {
-    glfwPollEvents();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-
-    glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glfwSwapBuffers(window);
-  }
-
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-  glDeleteProgram(shaderProgram);
-
-  glfwDestroyWindow(window);
-  glfwTerminate();
+  vao1.shutdown();
+  vbo1.shutdown();
+  ebo1.shutdown();
+  shaderProgram->shutdown();
+  graphicsManager->shutdown();
+  delete shaderProgram;
+  delete graphicsManager;
+  
   return 0;
 }
