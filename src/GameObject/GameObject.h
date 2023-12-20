@@ -114,7 +114,7 @@ public: // maybe remove virtual keywords on overridden (wacky on some compilers 
 private:
   bool m_isMarkedForDestruction = false;
   bool m_isDisabled = false;
-  sf::RectangleShape m_shape;
+   m_shape;
   std::string m_objectName = "default object name";
   std::vector<std::shared_ptr<Component>> m_components;
 };
