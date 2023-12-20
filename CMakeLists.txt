@@ -8,6 +8,7 @@ enable_testing()
 
 add_subdirectory("glfw")
 add_subdirectory("glew")
+add_subdirectory("stb")
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
@@ -27,10 +28,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${NAME}
   glfw
   libglew_static
+  stb::image
 )
+
 include(CPack)
 
 file(GLOB_RECURSE GLSL_SOURCE_FILES
   "${PROJECT_SOURCE_DIR}/shaders/*.frag"
   "${PROJECT_SOURCE_DIR}/shaders/*.vert"
+  "${PROJECT_SOURCE_DIR}/textures/*"
 )

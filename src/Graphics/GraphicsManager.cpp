@@ -1,8 +1,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include "GraphicsManager.h"
-
-const bool DEBUG = false;
+#include "../util.h"
 
 void HandleKeyInput(GLFWwindow* window, int key, int status, int action, int mods)
 {
@@ -12,7 +11,7 @@ void HandleKeyInput(GLFWwindow* window, int key, int status, int action, int mod
   }
   else
   {
-    DEBUG&& std::cout << "key: " << key << "; status: " << status << "; action: " << action << "; mods: " << mods << std::endl;
+    DEBUG && std::cout << "key: " << key << "; status: " << status << "; action: " << action << "; mods: " << mods << std::endl;
   }
 }
 
@@ -58,10 +57,9 @@ void GraphicsManager::tick(float dt)
 {
   glfwPollEvents();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   glfwSwapBuffers(window);
 }
-
 
 void GraphicsManager::SetWindowHints()
 {

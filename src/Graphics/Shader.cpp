@@ -34,7 +34,7 @@ void Shader::shutdown()
 
 GLuint Shader::CreateAndCompileShader(const std::string &shaderFile, GLuint shaderType)
 {
-  std::string shaderScript = GetFileContents(shaderFile);
+  std::string shaderScript = getFileContents(shaderFile);
   const char *shaderSource = shaderScript.c_str();
   GLuint shader = glCreateShader(shaderType);
 
