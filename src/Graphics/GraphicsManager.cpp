@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include "GraphicsManager.h"
+#include "DisplayTypes.h"
 #include "../util.h"
 
 void HandleKeyInput(GLFWwindow* window, int key, int status, int action, int mods)
@@ -23,7 +24,27 @@ GraphicsManager::GraphicsManager()
   }
 
   SetWindowHints();
-  window = glfwCreateWindow(1280, 720, "Grimlock", nullptr, nullptr);
+  if (m_displayMode == DisplayType::FULLSCREEN) {
+    window = glfwCreateWindow(
+      glfwGetVideoMode(glfwGetPrimaryMonitor())->width,
+      glfwGetVideoMode(glfwGetPrimaryMonitor())->height,
+      "Grimlock",
+      glfwGetPrimaryMonitor(),
+      nullptr
+    );
+  }
+  else if (m_displayMode == DisplayType::BORDERLESS) {
+    window = glfwCreateWindow(
+      glfwGetVideoMode(glfwGetPrimaryMonitor())->width,
+      glfwGetVideoMode(glfwGetPrimaryMonitor())->height,
+      "Grimlock",
+      nullptr,
+      nullptr
+    );
+  }
+  else if (m_displayMode == DisplayType::WINDOWED) {
+  }
+
   if (window == nullptr)
   {
     std::cerr << "GLFW window creation failed." << std::endl;
@@ -41,7 +62,7 @@ GraphicsManager::GraphicsManager()
   }
 }
 
-GraphicsManager::~GraphicsManager() 
+GraphicsManager::~GraphicsManager()
 {
   glfwTerminate();
 }
@@ -50,7 +71,7 @@ void GraphicsManager::initialize()
   glClearColor(0.15f, 0.15f, 0.2f, 1.0f);
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
-  glViewport(0, 0, 800, 800);
+  glViewport(0, 0, height, height);
 }
 
 void GraphicsManager::tick(float dt)

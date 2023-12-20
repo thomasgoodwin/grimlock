@@ -1,0 +1,6 @@
+#ifndef DISPLAY_TYPES_H
+#define DISPLAY_TYPES_H
+
+enum DisplayType { FULLSCREEN, BORDERLESS, WINDOWED };
+
+#endif

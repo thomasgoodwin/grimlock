@@ -12,6 +12,7 @@
 #include "Graphics/VBO.h"
 #include "Graphics/GraphicsManager.h"
 #include "Graphics/Texture.h"
+#include "GameObject/Transform.h"
 
 // Vertices coordinates
 GLfloat vertices[] =
@@ -25,8 +26,8 @@ GLfloat vertices[] =
 // Indices for vertices order
 GLuint indices[] =
 {
-	0, 2, 1, // Upper triangle
-	0, 3, 2 // Lower triangle
+  0, 2, 1, // Upper triangle
+  0, 3, 2 // Lower triangle
 };
 
 int main(void)
@@ -46,7 +47,12 @@ int main(void)
   vbo1.unbind();
   ebo1.unbind();
 
-
+  Transform* help = new Transform();
+  help->setTranslation(glm::vec2(2, 2));
+  help->setRotation(90);
+  help->setScale(glm::vec2(2, 2));
+  glm::mat3 result = help->calculateMatrix();
+  
   Texture cool("assets/textures/cool.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
   cool.texUnit(*shaderProgram, "tex0", 0);
 
@@ -67,6 +73,6 @@ int main(void)
   graphicsManager->shutdown();
   delete shaderProgram;
   delete graphicsManager;
-
+  delete help;
   return 0;
 }

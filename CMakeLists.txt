@@ -9,6 +9,7 @@ enable_testing()
 add_subdirectory("glfw")
 add_subdirectory("glew")
 add_subdirectory("stb")
+add_subdirectory("glm")
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
@@ -20,6 +21,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CM
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glew/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glm/glm/)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/source_group()
@@ -29,6 +31,7 @@ target_link_libraries(${NAME}
   glfw
   libglew_static
   stb::image
+  glm::glm
 )
 
 include(CPack)
