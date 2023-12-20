@@ -12,7 +12,7 @@ void HandleKeyInput(GLFWwindow* window, int key, int status, int action, int mod
   }
   else
   {
-    DEBUG && std::cout << "key: " << key << "; status: " << status << "; action: " << action << "; mods: " << mods << std::endl;
+    DEBUG&& std::cout << "key: " << key << "; status: " << status << "; action: " << action << "; mods: " << mods << std::endl;
   }
 }
 
@@ -88,6 +88,9 @@ void GraphicsManager::SetWindowHints()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+  if (m_displayMode == DisplayType::BORDERLESS) {
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+  }
 }
 
 bool GraphicsManager::isRunning()
