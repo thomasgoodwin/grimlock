@@ -1,43 +1,56 @@
 cmake_minimum_required(VERSION 3.28.0)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
-set(NAME Grimlock)
-project(${NAME} VERSION 0.1.0 LANGUAGES C CXX)
+
+project(Grimlock VERSION 0.1.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(CTest)
 enable_testing()
 
-add_subdirectory("glfw")
-add_subdirectory("glew")
-add_subdirectory("stb")
-add_subdirectory("glm")
+add_subdirectory(glfw)
+add_subdirectory(glew)
+add_subdirectory(glm)
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SOURCES
+  ${PROJECT_SOURCE_DIR}/src/*.cpp
+)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+set(ASSETS_DIR "${PROJECT_SOURCE_DIR}/assets")
+set(OUTPUT_ASSETS_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets")
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glew/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glm/glm/)
-
-target_include_directories(${PROJECT_NAME} PUBLIC
-  ${PROJECT_SOURCE_DIR}/source_group()
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  "${ASSETS_DIR}"
+  "${OUTPUT_ASSETS_DIR}"
+  COMMENT "Copying assets to build output directory..."
 )
 
-target_link_libraries(${NAME}
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE /FS)
+endif()
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/glew/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/glm/glm
+  ${CMAKE_CURRENT_SOURCE_DIR}/stb/stb
+)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
   glfw
   libglew_static
-  stb::image
   glm::glm
 )
 
-include(CPack)
+set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 
 file(GLOB_RECURSE GLSL_SOURCE_FILES
   "${PROJECT_SOURCE_DIR}/shaders/*.frag"
   "${PROJECT_SOURCE_DIR}/shaders/*.vert"
   "${PROJECT_SOURCE_DIR}/textures/*"
 )
+
+include(CPack)

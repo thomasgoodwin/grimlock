@@ -2,6 +2,7 @@
 #include <iostream>
 #include "GraphicsManager.h"
 #include "DisplayTypes.h"
+#include "Shader.h"
 #include "../util.h"
 
 void HandleKeyInput(GLFWwindow* window, int key, int status, int action, int mods)
@@ -76,6 +77,11 @@ void GraphicsManager::initialize()
 
 void GraphicsManager::tick(float dt)
 {
+
+}
+
+void GraphicsManager::render()
+{
   glfwPollEvents();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -106,4 +112,11 @@ void GraphicsManager::shutdown()
 GLFWwindow* GraphicsManager::getWindow()
 {
   return window;
+}
+
+std::shared_ptr<Shader> GraphicsManager::addShader(const std::string &vertexFile, const std::string &fragmentFile)
+{
+  std::shared_ptr<Shader> newShader = std::make_shared<Shader>(vertexFile, fragmentFile);
+  m_shaders.push_back(newShader);
+  return newShader;
 }

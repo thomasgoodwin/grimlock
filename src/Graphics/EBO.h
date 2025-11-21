@@ -7,8 +7,8 @@ class EBO
 {
   public:
     GLuint ID;
+    EBO();
     EBO(GLuint* indices, GLsizeiptr size);
-
     void bind();
     void unbind();
     void shutdown();

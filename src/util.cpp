@@ -7,7 +7,7 @@
 std::string getFileContents(const std::string& filename)
 {
   std::ifstream file;
-  std::string enginePath = ENGDIR + filename;
+  std::string enginePath = filename;
   file.open(enginePath, std::ios::in);
   std::stringstream contents;
   if (!file.fail())

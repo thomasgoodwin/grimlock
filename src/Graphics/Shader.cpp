@@ -1,7 +1,8 @@
+#include <vector>
 #include "Shader.h"
 #include "../util.h"
 
-Shader::Shader(const std::string &vertexFile, const std::string &fragmentFile)
+Shader::Shader(const std::string& vertexFile, const std::string& fragmentFile)
 {
   GLuint vertexShader = CreateAndCompileShader(vertexFile, GL_VERTEX_SHADER);
   GLuint fragmentShader = CreateAndCompileShader(fragmentFile, GL_FRAGMENT_SHADER);
@@ -11,15 +12,20 @@ Shader::Shader(const std::string &vertexFile, const std::string &fragmentFile)
   glLinkProgram(ID);
 
   int success;
-  glGetProgramiv(ID, GL_COMPILE_STATUS, &success);
+  glGetProgramiv(ID, GL_LINK_STATUS, &success);
   if (success != 1)
   {
-    char infoLog[2048];
-    glGetProgramInfoLog(ID, 2048, nullptr, infoLog);
-    std::cerr << "gl program link error: " << infoLog << std::endl;
+    GLint logLength = 0;
+    glGetProgramiv(ID, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength > 0)
+    {
+      std::vector<GLchar> infoLog(logLength);
+      glGetProgramInfoLog(ID, logLength, nullptr, infoLog.data());
+      std::cerr << "Program link error:\n" << infoLog.data() << std::endl;
+    }
   }
-  //glDeleteShader(vertexShader);
-  //glDeleteShader(fragmentShader);
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
 }
 
 void Shader::activate()
@@ -32,10 +38,21 @@ void Shader::shutdown()
   glDeleteProgram(ID);
 }
 
-GLuint Shader::CreateAndCompileShader(const std::string &shaderFile, GLuint shaderType)
+void Shader::setUniform1i(const std::string& name, int value) const
+{
+  GLint location = glGetUniformLocation(ID, name.c_str());
+  if (location == -1) {
+    //std::cerr << "Warning: uniform '" << name << "' not found in shader. ID: " << ID << "\n";
+  }
+  else {
+    glUniform1i(location, value);
+  }
+}
+
+GLuint Shader::CreateAndCompileShader(const std::string& shaderFile, GLuint shaderType)
 {
   std::string shaderScript = getFileContents(shaderFile);
-  const char *shaderSource = shaderScript.c_str();
+  const char* shaderSource = shaderScript.c_str();
   GLuint shader = glCreateShader(shaderType);
 
   glShaderSource(shader, 1, &shaderSource, nullptr);

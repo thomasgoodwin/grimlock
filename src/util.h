@@ -2,10 +2,6 @@
 #define UTIL_H
 #include <string>
 
-#ifndef ENGDIR
-#define ENGDIR "../"
-#endif
-
 #ifndef DEBUG
 #define DEBUG false
 #endif

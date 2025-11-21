@@ -8,7 +8,6 @@ out vec3 color;
 
 out vec2 texCoord;
 
-uniform float scale;
 
 void main()
 {

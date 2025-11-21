@@ -1,21 +1,21 @@
-#ifndef TEXTURE_CLASS_H
-#define TEXTURE_CLASS_H
-
+#pragma once
+#include <string>
 #include <GL/glew.h>
-#include <stb/stb_image.h>
+#include "stb_image.h"
 
-#include "Shader.h"
+class Texture {
+public:
+  Texture(const std::string& path, bool flipVertically = true);
+  ~Texture();
 
-class Texture
-{
-  public:
-    GLuint ID;
-    GLenum type;
-    Texture(std::string image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType);
-    void texUnit(Shader shader, const char* uniform, GLuint unit);
-    void bind();
-    void unbind();
-    void shutdown();
+  void bind(GLuint slot = 0) const;
+  void unbind() const;
+
+  GLuint getID() const { return m_ID; }
+  int getWidth() const { return m_width; }
+  int getHeight() const { return m_height; }
+
+private:
+  GLuint m_ID;
+  int m_width, m_height, m_channels;
 };
-
-#endif
