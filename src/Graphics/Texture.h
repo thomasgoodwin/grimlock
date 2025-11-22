@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TEXTURE_CLASS_H
+#define TEXTURE_CLASS_H
+
 #include <string>
 #include <GL/glew.h>
 #include "stb_image.h"
@@ -19,3 +21,5 @@ private:
   GLuint m_ID;
   int m_width, m_height, m_channels;
 };
+
+#endif

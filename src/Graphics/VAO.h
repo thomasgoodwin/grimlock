@@ -1,8 +1,8 @@
 #ifndef VAO_CLASS_H
 #define VAO_CLASS_H
-
-#include <GL/glew.h>
 #include "VBO.h"
+
+typedef unsigned int GLenum;
 
 class VAO
 {

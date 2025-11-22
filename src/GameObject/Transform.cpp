@@ -32,39 +32,48 @@ glm::vec2 Transform::getTranslation()
 void Transform::setScale(glm::vec2 scale)
 {
   m_scale = scale;
+  m_matrix = calculateMatrix();
 }
 
 void Transform::setRotation(float rotation)
 {
   m_rotation = rotation;
+  m_matrix = calculateMatrix();
 }
 
 void Transform::setTranslation(glm::vec2 translation)
 {
   m_translation = translation;
+  m_matrix = calculateMatrix();
 }
 
 glm::mat3 Transform::calculateMatrix()
 {
+  glm::mat3 translation = {
+  1, 0, m_translation[0],
+  0, 1, m_translation[1],
+  0, 0, 1
+  };
+
+
+  float rotationRadians = (m_rotation * PI / 180);
+  glm::mat3 rotation = {
+    cos(rotationRadians), -sin(rotationRadians), 0,
+    sin(rotationRadians), cos(rotationRadians), 0,
+    0,0,1
+  };
+
   glm::mat3 scale = {
     m_scale[0], 0, 0,
     0, m_scale[1], 0,
     0,0,1
   };
 
-  float rotationRadians = (m_rotation * PI / 180); 
-  glm::mat3 rotation = {
-    cos(rotationRadians), -sin(rotationRadians), 0,
-    sin(rotationRadians), cos(rotationRadians), 0,
-    0,0,1
-  };
-  
-  glm::mat3 translation = {
-    1, 0, m_translation[0],
-    0, 1, m_translation[1],
-    0, 0, 1
-  };
-
-  glm::mat3 result =  scale * rotation * translation;
+  glm::mat3 result = translation * rotation * scale;
   return result;
+}
+
+glm::mat3 Transform::getMatrix()
+{
+  return m_matrix;
 }

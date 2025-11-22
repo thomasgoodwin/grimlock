@@ -14,7 +14,7 @@
 class GameObject
 {
 public:
-  GameObject();
+  GameObject(std::string& name);
 
   virtual void initialize();
   virtual void tick(float dt);
@@ -41,6 +41,8 @@ private:
   bool m_isMarkedForDestruction = false;
   bool m_isDisabled = false;
   std::string m_objectName = "default object name";
+
+  // graphics
   std::shared_ptr<Texture> m_texture;
   std::shared_ptr<Transform> m_transform;
   std::shared_ptr<Shader> m_shader;

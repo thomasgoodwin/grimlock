@@ -1,4 +1,8 @@
 #include <vector>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Shader.h"
 #include "../util.h"
 
@@ -49,6 +53,12 @@ void Shader::setUniform1i(const std::string& name, int value) const
   }
 }
 
+void Shader::setMat3(const std::string& name, const glm::mat3& mat)
+{
+  glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()),
+    1, GL_FALSE, glm::value_ptr(mat));
+}
+
 GLuint Shader::CreateAndCompileShader(const std::string& shaderFile, GLuint shaderType)
 {
   std::string shaderScript = getFileContents(shaderFile);
@@ -58,13 +68,15 @@ GLuint Shader::CreateAndCompileShader(const std::string& shaderFile, GLuint shad
   glShaderSource(shader, 1, &shaderSource, nullptr);
   glCompileShader(shader);
 
-  int success;
+  GLint success;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-  if (success != 1)
+  if (success != GL_TRUE)
   {
     char infoLog[2048];
     glGetShaderInfoLog(shader, 2048, nullptr, infoLog);
     std::cerr << "gl shader compilation error: " << infoLog << std::endl;
+    glDeleteShader(shader);
+    return 0;
   }
 
   return shader;

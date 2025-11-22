@@ -1,8 +1,11 @@
 #include <iostream>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "Graphics/GraphicsManager.h"
+#include "GameObject/GameObject.h"
 #include "Engine.h"
 
-Engine::Engine() : m_graphicsManager(std::make_unique<GraphicsManager>())
+Engine::Engine() : m_graphicsManager(std::make_unique<GraphicsManager>(1280, 720))
 {
 
 }
@@ -11,6 +14,9 @@ void Engine::initialize()
 {
   m_graphicsManager->initialize();
   m_currentTime = std::chrono::system_clock::now();
+  for (int i = 0; i < m_gameObjects.size(); i++) {
+    m_gameObjects[i]->initialize();
+  }
 }
 
 Engine::~Engine()
@@ -24,6 +30,7 @@ bool Engine::gameIsRunning()
 
 void Engine::gameLoop()
 {
+  glfwPollEvents();
   auto newCurrentTime = std::chrono::system_clock::now();
   std::chrono::duration<float> elapsedTime = (newCurrentTime - m_currentTime);
   m_currentTime = newCurrentTime;
@@ -40,6 +47,9 @@ float Engine::getDeltaTime()
 
 void Engine::shutdown()
 {
+  for (int i = 0; i < m_gameObjects.size(); i++) {
+    m_gameObjects[i]->shutdown();
+  }
   m_graphicsManager->shutdown();
 }
 
@@ -50,12 +60,24 @@ void Engine::stopGame()
 
 void Engine::tick(float dt)
 {
+  for (int i = 0; i < m_gameObjects.size(); i++) {
+    if (!m_gameObjects[i]->isDisabled()) {
+      m_gameObjects[i]->tick(dt);
+    }
+  }
   m_graphicsManager->tick(dt);
 }
 
 void Engine::render()
 {
+  m_graphicsManager->prerender();
+  for (int i = 0; i < m_gameObjects.size(); i++) {
+    if (!m_gameObjects[i]->isDisabled()) {
+      m_gameObjects[i]->render();
+    }
+  }
   m_graphicsManager->render();
+  m_graphicsManager->postrender();
 }
 
 GraphicsManager& Engine::getGraphicsManager()
@@ -67,4 +89,15 @@ Engine& Engine::get()
 {
   static Engine _instance;
   return _instance;
+}
+
+void Engine::addGameObject(std::string& name)
+{
+  m_gameObjects.push_back(std::make_unique<GameObject>(name));
+}
+
+// test cases
+void Engine::testCase1()
+{
+  addGameObject(std::string("test"));
 }

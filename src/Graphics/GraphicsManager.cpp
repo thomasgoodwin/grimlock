@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include "GraphicsManager.h"
 #include "DisplayTypes.h"
@@ -17,78 +18,102 @@ void HandleKeyInput(GLFWwindow* window, int key, int status, int action, int mod
   }
 }
 
-GraphicsManager::GraphicsManager()
+GraphicsManager::GraphicsManager(int width, int height) : m_width(width), m_height(height), m_camera(std::make_shared<Camera>(width, height))
 {
-  if (!glfwInit())
-  {
-    std::cerr << "glfw init failed" << std::endl;
+  if (!initGLFW()) {
+    std::cerr << "Failed to initialize GLFW" << std::endl;
+    std::exit(-1);
   }
 
-  SetWindowHints();
-  if (m_displayMode == DisplayType::FULLSCREEN) {
-    window = glfwCreateWindow(
-      glfwGetVideoMode(glfwGetPrimaryMonitor())->width,
-      glfwGetVideoMode(glfwGetPrimaryMonitor())->height,
-      "Grimlock",
-      glfwGetPrimaryMonitor(),
-      nullptr
-    );
-  }
-  else if (m_displayMode == DisplayType::BORDERLESS) {
-    window = glfwCreateWindow(
-      glfwGetVideoMode(glfwGetPrimaryMonitor())->width,
-      glfwGetVideoMode(glfwGetPrimaryMonitor())->height,
-      "Grimlock",
-      nullptr,
-      nullptr
-    );
-  }
-  else if (m_displayMode == DisplayType::WINDOWED) {
+  glfwSetKeyCallback(m_window, HandleKeyInput);
+  if (!initGLEW()) {
+    std::cerr << "Failed to initialize GLEW" << std::endl;
+    std::exit(-1);
   }
 
-  if (window == nullptr)
-  {
-    std::cerr << "GLFW window creation failed." << std::endl;
-    glfwTerminate();
-  }
-
-  glfwMakeContextCurrent(window);
-  glfwSetKeyCallback(window, HandleKeyInput);
-  glewExperimental = GL_TRUE;
-  if (glewInit() != GLEW_OK)
-  {
-    std::cout << "GLEW init failed." << std::endl;
-    glfwDestroyWindow(window);
-    glfwTerminate();
-  }
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 GraphicsManager::~GraphicsManager()
 {
   glfwTerminate();
 }
+
+bool GraphicsManager::initGLFW()
+{
+  if (!glfwInit())
+    return false;
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef DEBUG
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif
+
+  m_window = glfwCreateWindow(m_width, m_height, "Grimlock", nullptr, nullptr);
+  if (!m_window)
+  {
+    glfwTerminate();
+    return false;
+  }
+
+  glfwMakeContextCurrent(m_window);
+
+  return true;
+}
+
+bool GraphicsManager::initGLEW()
+{
+  glewExperimental = GL_TRUE;
+  GLenum err = glewInit();
+  if (err != GLEW_OK)
+  {
+    std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
+    return false;
+  }
+  glGetError();
+
+  return true;
+}
+
+void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+  glViewport(0, 0, width, height);
+}
+
 void GraphicsManager::initialize()
 {
-  glClearColor(0.15f, 0.15f, 0.2f, 1.0f);
   int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
-  glViewport(0, 0, height, height);
+  glfwGetFramebufferSize(m_window, &width, &height);
+  auto cameraPosition = m_camera->getPosition();
+
+  glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
 }
 
 void GraphicsManager::tick(float dt)
 {
+}
 
+void GraphicsManager::prerender()
+{
+  glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void GraphicsManager::render()
 {
-  glfwPollEvents();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-  glfwSwapBuffers(window);
 }
 
-void GraphicsManager::SetWindowHints()
+void GraphicsManager::postrender()
+{
+  glfwSwapBuffers(m_window);
+}
+
+void GraphicsManager::setWindowHints()
 {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -101,20 +126,25 @@ void GraphicsManager::SetWindowHints()
 
 bool GraphicsManager::isRunning()
 {
-  return !glfwWindowShouldClose(window);
+  return !glfwWindowShouldClose(m_window);
 }
 
 void GraphicsManager::shutdown()
 {
-  glfwDestroyWindow(window);
+  glfwDestroyWindow(m_window);
 }
 
 GLFWwindow* GraphicsManager::getWindow()
 {
-  return window;
+  return m_window;
 }
 
-std::shared_ptr<Shader> GraphicsManager::addShader(const std::string &vertexFile, const std::string &fragmentFile)
+std::shared_ptr<Camera> GraphicsManager::getCamera() const
+{
+  return m_camera;
+}
+
+std::shared_ptr<Shader> GraphicsManager::addShader(const std::string& vertexFile, const std::string& fragmentFile)
 {
   std::shared_ptr<Shader> newShader = std::make_shared<Shader>(vertexFile, fragmentFile);
   m_shaders.push_back(newShader);
