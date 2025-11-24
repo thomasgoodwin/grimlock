@@ -53,10 +53,14 @@ void Shader::setUniform1i(const std::string& name, int value) const
   }
 }
 
-void Shader::setMat3(const std::string& name, const glm::mat3& mat)
+void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
 {
-  glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()),
-    1, GL_FALSE, glm::value_ptr(mat));
+  GLint location = glGetUniformLocation(ID, name.c_str());
+  if (location == -1)
+  {
+    std::cout << "Warning: uniform '" << name << "' doesn't exist or is unused.\n";
+  }
+  glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
 GLuint Shader::CreateAndCompileShader(const std::string& shaderFile, GLuint shaderType)

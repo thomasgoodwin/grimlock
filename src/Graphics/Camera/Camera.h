@@ -6,7 +6,7 @@
 class Camera
 {
 public:
-    Camera(float screenWidth, float screenHeight);
+    Camera(int screenWidth, int screenHeight);
 
     void setPosition(const glm::vec2& pos);
     void setZoom(float zoom);

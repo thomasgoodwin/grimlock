@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform2.hpp>
 
-Camera::Camera(float screenWidth, float screenHeight)
+Camera::Camera(int screenWidth, int screenHeight)
   : m_width(screenWidth), m_height(screenHeight),
   m_position(0.0f), m_zoom(1.0f), m_rotation(0.0f)
 {

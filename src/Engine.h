@@ -23,6 +23,7 @@ public:
   static GraphicsManager& getGraphicsManager();
   void addGameObject(std::string& name);
   void testCase1();
+  void killEngine();
 
 private:
 	Engine();

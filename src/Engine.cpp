@@ -70,12 +70,12 @@ void Engine::tick(float dt)
 
 void Engine::render()
 {
-  m_graphicsManager->prerender();
   for (int i = 0; i < m_gameObjects.size(); i++) {
     if (!m_gameObjects[i]->isDisabled()) {
       m_gameObjects[i]->render();
     }
   }
+  m_graphicsManager->prerender();
   m_graphicsManager->render();
   m_graphicsManager->postrender();
 }
@@ -94,6 +94,10 @@ Engine& Engine::get()
 void Engine::addGameObject(std::string& name)
 {
   m_gameObjects.push_back(std::make_unique<GameObject>(name));
+}
+
+void Engine::killEngine() {
+  m_gameIsRunning = false;
 }
 
 // test cases

@@ -1,17 +1,20 @@
 #include "Transform.h"
-#include <math.h>
-#define PI 3.14159265
+#include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#define PI 3.14159265f
 
 Transform::Transform()
 {
   m_rotation = 0.0f;
   m_scale = glm::vec2(1.0f, 1.0f);
   m_translation = glm::vec2(0.0f, 0.0f);
+
+  m_matrix = calculateMatrix();
 }
 
 Transform::~Transform()
 {
-
 }
 
 glm::vec2 Transform::getScale()
@@ -35,9 +38,9 @@ void Transform::setScale(glm::vec2 scale)
   m_matrix = calculateMatrix();
 }
 
-void Transform::setRotation(float rotation)
+void Transform::setRotation(float rotationDegrees)
 {
-  m_rotation = rotation;
+  m_rotation = rotationDegrees;
   m_matrix = calculateMatrix();
 }
 
@@ -47,33 +50,26 @@ void Transform::setTranslation(glm::vec2 translation)
   m_matrix = calculateMatrix();
 }
 
-glm::mat3 Transform::calculateMatrix()
+glm::mat4 Transform::calculateMatrix()
 {
-  glm::mat3 translation = {
-  1, 0, m_translation[0],
-  0, 1, m_translation[1],
-  0, 0, 1
-  };
+  glm::mat4 result = glm::mat4(1.0f);
 
+  result = glm::translate(result, glm::vec3(m_translation, 0.0f));
 
-  float rotationRadians = (m_rotation * PI / 180);
-  glm::mat3 rotation = {
-    cos(rotationRadians), -sin(rotationRadians), 0,
-    sin(rotationRadians), cos(rotationRadians), 0,
-    0,0,1
-  };
+  float radians = m_rotation * PI / 180.0f;
+  result = glm::rotate(result, radians, glm::vec3(0.0f, 0.0f, 1.0f));
 
-  glm::mat3 scale = {
-    m_scale[0], 0, 0,
-    0, m_scale[1], 0,
-    0,0,1
-  };
+  result = glm::scale(result, glm::vec3(m_scale, 1.0f));
 
-  glm::mat3 result = translation * rotation * scale;
   return result;
 }
 
-glm::mat3 Transform::getMatrix()
+glm::mat4 Transform::getMatrix()
 {
   return m_matrix;
+}
+
+void Transform::debug()
+{
+  std::cout << "Translation: " << m_translation.x << ", " << m_translation.y << "\nRotation: " << m_rotation << "\n" << "Scale: " << m_scale.x << ", " << m_scale.y << "\n" << std::endl;
 }

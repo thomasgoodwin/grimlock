@@ -17,7 +17,7 @@ public:
   void activate();
   void shutdown();
   void setUniform1i(const std::string& name, int value) const;
-  void setMat3(const std::string& name, const glm::mat3& mat);
+  void setMat4(const std::string& name, const glm::mat4& mat) const;
 private:
   GLuint CreateAndCompileShader(const std::string& shaderSource, GLuint shaderType);
 };

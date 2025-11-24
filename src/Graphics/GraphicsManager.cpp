@@ -4,7 +4,15 @@
 #include "GraphicsManager.h"
 #include "DisplayTypes.h"
 #include "Shader.h"
+#include "../Engine.h"
 #include "../util.h"
+
+void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id,
+  GLenum severity, GLsizei length,
+  const GLchar* message, const void* userParam)
+{
+  std::cerr << "GL ERROR: " << message << std::endl;
+}
 
 void HandleKeyInput(GLFWwindow* window, int key, int status, int action, int mods)
 {
@@ -86,15 +94,18 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 
 void GraphicsManager::initialize()
 {
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(DebugCallback, 0);
   int width, height;
   glfwGetFramebufferSize(m_window, &width, &height);
-  auto cameraPosition = m_camera->getPosition();
-
   glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
 }
 
 void GraphicsManager::tick(float dt)
 {
+  if (glfwWindowShouldClose(m_window)) {
+    Engine::get().killEngine();
+  }
 }
 
 void GraphicsManager::prerender()
