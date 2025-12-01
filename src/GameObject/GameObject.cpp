@@ -94,8 +94,6 @@ void GameObject::applyForces(float dt)
 {
   // apply gravity and momentum
   glm::vec2 position = m_transform->getTranslation();
-  std::cout << "BeFORE " << position.y << std::endl;
-  position.y += GRAVITY * dt;
-  std::cout << "AfTER " << position.y << std::endl;
+  position.y -= GRAVITY * dt;
   m_transform->setTranslation(position);
 }
