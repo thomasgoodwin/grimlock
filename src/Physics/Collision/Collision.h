@@ -2,6 +2,7 @@
 #define COLLISION_CLASS_H
 #include <glm/glm.hpp>
 #include <string>
+#include <memory>
 
 class GameObject;
 
@@ -16,18 +17,18 @@ struct CollisionInfo {
 class Collision
 {
 public:
-  Collision(GameObject* owner, const std::string& type, bool isStatic = false);
+  Collision(uint64_t owner, const std::string& type, bool isStatic = false);
   bool getIsStatic() const;
   void setIsStatic(bool isStatic);
   bool getIsTrigger() const;
   void setIsTrigger(bool isTrigger);
-  GameObject* getOwner();
+  std::shared_ptr<GameObject> getOwner();
   std::string getType();
 private:
   bool m_isStatic = false;
-  bool m_isTrigger;
-  GameObject* m_owner;
-  std::string m_type;
+  bool m_isTrigger = false;
+  uint64_t m_owner;
+  std::string m_type = "";
 };
 
 #endif

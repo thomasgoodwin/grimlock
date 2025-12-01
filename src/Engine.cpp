@@ -104,8 +104,15 @@ uint64_t Engine::addGameObject(std::string& name)
   return objectId;
 }
 
-std::shared_ptr<GameObject> Engine::getGameObjectById(uint64_t id)
+std::weak_ptr<GameObject> Engine::getGameObjectById(uint64_t id)
 {
+  try {
+    m_gameObjects.at(id);
+  }
+  catch (const std::out_of_range& e) {
+    std::cout << "Game object does not exist: " << id << std::endl;
+    return std::weak_ptr<GameObject>();
+  }
   return m_gameObjects[id];
 }
 
@@ -113,10 +120,17 @@ void Engine::killEngine() {
   m_gameIsRunning = false;
 }
 
+void Engine::printGameObjects() const
+{
+  std::cout << "<Print Game Objects>" << std::endl;
+  for (const auto& [key, value] : m_gameObjects) {
+    std::cout << "Key: " << key << ", Value: " << value->getObjectName() << std::endl;
+  }
+}
+
 // test cases
 void Engine::testCase1()
 {
-  uint64_t mainBox = addGameObject(std::string("test"));
-  std::shared_ptr<GameObject> mainBoxObject = getGameObjectById(mainBox);
-  m_physicsManager->registerCollisionComponent(mainBoxObject.get(), "box");
+  uint64_t mainBoxId = addGameObject(std::string("main box"));
+  m_physicsManager->registerCollisionComponent(mainBoxId, "box");
 }

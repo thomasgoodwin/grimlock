@@ -22,11 +22,11 @@ public:
   float getDeltaTime();
   static Engine& get();
   static GraphicsManager& getGraphicsManager();
-  std::shared_ptr<GameObject> getGameObjectById(uint64_t id);
+  std::weak_ptr<GameObject> getGameObjectById(uint64_t id);
   uint64_t addGameObject(std::string& name);
   void testCase1();
   void killEngine();
-
+  void printGameObjects() const;
 private:
   Engine();
   static Engine _instance;

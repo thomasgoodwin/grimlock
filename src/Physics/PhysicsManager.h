@@ -18,7 +18,7 @@ public:
   void shutdown();
   CollisionInfo checkCollision(Collision& collider1, Collision& collider2);
   void resolveCollision(Collision& collider1, Collision& collider2, CollisionInfo& info);
-  void registerCollisionComponent(GameObject* owner, const std::string type, bool isStatic = false);
+  void registerCollisionComponent(uint64_t owner, const std::string type, bool isStatic = false);
 private:
   std::vector<std::unique_ptr<Collision>> m_dynamicColliders;
   std::vector<std::unique_ptr<Collision>> m_staticColliders;

@@ -51,7 +51,7 @@ void PhysicsManager::tick(float dt)
     }
   }
 }
-void PhysicsManager::registerCollisionComponent(GameObject* owner, const std::string type, bool isStatic)
+void PhysicsManager::registerCollisionComponent(uint64_t owner, const std::string type, bool isStatic)
 {
   if (isStatic) {
     m_staticColliders.push_back(std::make_unique<Collision>(owner, type, isStatic));
