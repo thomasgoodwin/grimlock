@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Shader.h"
-#include "../util.h"
+#include "Util.h"
 
 Shader::Shader(const std::string& vertexFile, const std::string& fragmentFile)
 {
@@ -45,21 +45,14 @@ void Shader::shutdown()
 void Shader::setUniform1i(const std::string& name, int value) const
 {
   GLint location = glGetUniformLocation(ID, name.c_str());
-  if (location == -1) {
-    //std::cerr << "Warning: uniform '" << name << "' not found in shader. ID: " << ID << "\n";
-  }
-  else {
-    glUniform1i(location, value);
-  }
+  assert(location != -1);
+  glUniform1i(location, value);
 }
 
 void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
 {
   GLint location = glGetUniformLocation(ID, name.c_str());
-  if (location == -1)
-  {
-    std::cout << "Warning: uniform '" << name << "' doesn't exist or is unused.\n";
-  }
+  assert(location != -1);
   glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 

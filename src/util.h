@@ -7,5 +7,6 @@
 #endif
 
 std::string getFileContents(const std::string& filename);
+uint64_t generate_uuid();
 
 #endif

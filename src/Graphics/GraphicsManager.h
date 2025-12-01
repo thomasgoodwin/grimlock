@@ -2,6 +2,7 @@
 #define GRAPHICS_MANAGER_H
 #include <vector>
 #include <memory>
+#include <string>
 #include "DisplayTypes.h"
 #include "Camera/Camera.h"
 
@@ -11,10 +12,11 @@ struct GLFWwindow;
 class GraphicsManager
 {
 public:
-  GraphicsManager(int width, int height);
+  GraphicsManager();
   ~GraphicsManager();
   bool initGLFW();
   bool initGLEW();
+  void updateViewport();
   void initialize();
   void tick(float dt);
   void prerender();
@@ -25,6 +27,9 @@ public:
   std::shared_ptr<Shader> addShader(const std::string& vertexFile, const std::string& fragmentFile);
   GLFWwindow* getWindow();
   std::shared_ptr<Camera> getCamera() const;
+  int getWidth() const;
+  int getHeight()const;
+  float getAspectRatio() const;
 private:
   void setWindowHints();
   int m_width;
@@ -33,6 +38,7 @@ private:
   DisplayType m_displayMode = DisplayType::BORDERLESS;
   std::vector<std::shared_ptr<Shader>> m_shaders;
   std::shared_ptr<Camera> m_camera;
+  float m_aspectRatio;
 };
 
 #endif

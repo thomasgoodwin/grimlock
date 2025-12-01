@@ -37,6 +37,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/glew/include
   ${CMAKE_CURRENT_SOURCE_DIR}/glm/glm
   ${CMAKE_CURRENT_SOURCE_DIR}/stb/stb
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
