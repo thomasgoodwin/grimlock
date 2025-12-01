@@ -5,16 +5,16 @@
 #include <memory>
 
 #include "Transform.h"
-#include "../Graphics/Texture.h"
-#include "../Graphics/Shader.h"
-#include "../Graphics/VBO.h"
-#include "../Graphics/VAO.h"
-#include "../Graphics/EBO.h"
+#include "Graphics/Texture.h"
+#include "Graphics/Shader.h"
+#include "Graphics/VBO.h"
+#include "Graphics/VAO.h"
+#include "Graphics/EBO.h"
 
 class GameObject
 {
 public:
-  GameObject(std::string& name);
+  GameObject(std::string& name, uint64_t id);
 
   virtual void initialize();
   virtual void tick(float dt);
@@ -37,6 +37,8 @@ public:
   std::shared_ptr<Texture> getTexture();
   std::shared_ptr<Transform> getTransform();
 
+  void applyForces(float dt);
+
 private:
   bool m_isMarkedForDestruction = false;
   bool m_isDisabled = false;
@@ -51,6 +53,7 @@ private:
   std::shared_ptr<EBO> m_ebo;
   std::vector<float> m_vertices;
   std::vector<unsigned int> m_indices;
+  uint64_t m_id;
 };
 
 #endif

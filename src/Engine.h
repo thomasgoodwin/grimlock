@@ -2,11 +2,12 @@
 #define ENGINE_H
 #include <chrono>
 #include <ctime> 
-#include <vector>
 #include <memory>
 #include <array>
+#include <unordered_map>
 
 class GraphicsManager;
+class PhysicsManager;
 class GameObject;
 
 class Engine
@@ -21,20 +22,22 @@ public:
   float getDeltaTime();
   static Engine& get();
   static GraphicsManager& getGraphicsManager();
-  void addGameObject(std::string& name);
+  std::shared_ptr<GameObject> getGameObjectById(uint64_t id);
+  uint64_t addGameObject(std::string& name);
   void testCase1();
   void killEngine();
 
 private:
-	Engine();
-	static Engine _instance;
-	void tick(float dt);
-	void render();
+  Engine();
+  static Engine _instance;
+  void tick(float dt);
+  void render();
   std::unique_ptr<GraphicsManager> m_graphicsManager;
-	float m_deltaTime;
-	bool m_gameIsRunning = true;
-	std::chrono::system_clock::time_point m_currentTime;
-  std::vector<std::unique_ptr<GameObject>> m_gameObjects;
+  std::unique_ptr<PhysicsManager> m_physicsManager;
+  float m_deltaTime;
+  bool m_gameIsRunning = true;
+  std::chrono::system_clock::time_point m_currentTime;
+  std::unordered_map<uint64_t, std::shared_ptr<GameObject>> m_gameObjects;
 };
 
 #endif

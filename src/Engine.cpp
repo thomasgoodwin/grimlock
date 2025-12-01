@@ -2,10 +2,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Graphics/GraphicsManager.h"
+#include "Physics/PhysicsManager.h"
 #include "GameObject/GameObject.h"
 #include "Engine.h"
+#include "Util.h"
 
-Engine::Engine() : m_graphicsManager(std::make_unique<GraphicsManager>(1280, 720))
+Engine::Engine() : m_graphicsManager(std::make_unique<GraphicsManager>()), m_physicsManager(std::make_unique<PhysicsManager>())
 {
 
 }
@@ -13,9 +15,10 @@ Engine::Engine() : m_graphicsManager(std::make_unique<GraphicsManager>(1280, 720
 void Engine::initialize()
 {
   m_graphicsManager->initialize();
+  m_physicsManager->initialize();
   m_currentTime = std::chrono::system_clock::now();
-  for (int i = 0; i < m_gameObjects.size(); i++) {
-    m_gameObjects[i]->initialize();
+  for (auto& [id, gameObject] : m_gameObjects) {
+    gameObject->initialize();
   }
 }
 
@@ -47,10 +50,11 @@ float Engine::getDeltaTime()
 
 void Engine::shutdown()
 {
-  for (int i = 0; i < m_gameObjects.size(); i++) {
-    m_gameObjects[i]->shutdown();
+  for (auto& [id, gameObject] : m_gameObjects) {
+    gameObject->shutdown();
   }
   m_graphicsManager->shutdown();
+  m_physicsManager->shutdown();
 }
 
 void Engine::stopGame()
@@ -60,23 +64,25 @@ void Engine::stopGame()
 
 void Engine::tick(float dt)
 {
-  for (int i = 0; i < m_gameObjects.size(); i++) {
-    if (!m_gameObjects[i]->isDisabled()) {
-      m_gameObjects[i]->tick(dt);
+  for (auto& [id, gameObject] : m_gameObjects) {
+    if (!gameObject->isDisabled()) {
+      gameObject->tick(dt);
     }
   }
   m_graphicsManager->tick(dt);
+  m_physicsManager->tick(dt);
 }
 
 void Engine::render()
 {
-  for (int i = 0; i < m_gameObjects.size(); i++) {
-    if (!m_gameObjects[i]->isDisabled()) {
-      m_gameObjects[i]->render();
+  for (auto& [id, gameObject] : m_gameObjects) {
+    if (!gameObject->isDisabled()) {
+      gameObject->render();
     }
   }
   m_graphicsManager->prerender();
   m_graphicsManager->render();
+  m_physicsManager->render();
   m_graphicsManager->postrender();
 }
 
@@ -91,9 +97,16 @@ Engine& Engine::get()
   return _instance;
 }
 
-void Engine::addGameObject(std::string& name)
+uint64_t Engine::addGameObject(std::string& name)
 {
-  m_gameObjects.push_back(std::make_unique<GameObject>(name));
+  uint64_t objectId = generate_uuid();
+  m_gameObjects[objectId] = std::make_shared<GameObject>(name, objectId);
+  return objectId;
+}
+
+std::shared_ptr<GameObject> Engine::getGameObjectById(uint64_t id)
+{
+  return m_gameObjects[id];
 }
 
 void Engine::killEngine() {
@@ -103,5 +116,7 @@ void Engine::killEngine() {
 // test cases
 void Engine::testCase1()
 {
-  addGameObject(std::string("test"));
+  uint64_t mainBox = addGameObject(std::string("test"));
+  std::shared_ptr<GameObject> mainBoxObject = getGameObjectById(mainBox);
+  m_physicsManager->registerCollisionComponent(mainBoxObject.get(), "box");
 }
