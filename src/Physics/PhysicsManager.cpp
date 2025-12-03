@@ -40,7 +40,6 @@ void PhysicsManager::tick(float dt)
         resolveCollision(*m_dynamicColliders[i], *m_dynamicColliders[j], info);
       }
     }
-    m_staticColliders[i]->getOwner()->applyForces(dt);
   }
   for (const auto& collider1 : m_dynamicColliders) {
     for (const auto& collider2 : m_staticColliders) {
@@ -76,7 +75,7 @@ CollisionInfo PhysicsManager::checkCollision(Collision& collider1, Collision& co
 }
 void PhysicsManager::resolveCollision(Collision& collider1, Collision& collider2, CollisionInfo& info)
 {
-  std::cout << "Collision detected!" << info.location.x << info.location.y << std::endl;
+  std::cout << "Collision detected!" << info.location.x << " " << info.location.y << std::endl;
 }
 void PhysicsManager::render()
 {

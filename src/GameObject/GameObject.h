@@ -14,7 +14,8 @@
 class GameObject
 {
 public:
-  GameObject(std::string& name, uint64_t id);
+  GameObject();
+  GameObject(const std::string& name, uint64_t id, const std::string& texturePath);
 
   virtual void initialize();
   virtual void tick(float dt);

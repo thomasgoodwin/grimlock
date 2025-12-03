@@ -75,13 +75,13 @@ void Engine::tick(float dt)
 
 void Engine::render()
 {
+  m_graphicsManager->prerender();
   for (auto& [id, gameObject] : m_gameObjects) {
     if (!gameObject->isDisabled()) {
       gameObject->render();
+      m_graphicsManager->render();
     }
   }
-  m_graphicsManager->prerender();
-  m_graphicsManager->render();
   m_physicsManager->render();
   m_graphicsManager->postrender();
 }
@@ -97,10 +97,10 @@ Engine& Engine::get()
   return _instance;
 }
 
-uint64_t Engine::addGameObject(std::string& name)
+uint64_t Engine::addGameObject(const std::string& name, const std::string& texturePath)
 {
   uint64_t objectId = generate_uuid();
-  m_gameObjects[objectId] = std::make_shared<GameObject>(name, objectId);
+  m_gameObjects[objectId] = std::make_shared<GameObject>(name, objectId, texturePath);
   return objectId;
 }
 
@@ -131,6 +131,14 @@ void Engine::printGameObjects() const
 // test cases
 void Engine::testCase1()
 {
-  uint64_t mainBoxId = addGameObject(std::string("main box"));
+  uint64_t mainBoxId = addGameObject("main box");
   m_physicsManager->registerCollisionComponent(mainBoxId, "box");
+  uint64_t platformId = addGameObject("platform", "assets/textures/blackBox");
+  m_physicsManager->registerCollisionComponent(platformId, "box", true);
+  auto platform = Engine::get().getGameObjectById(platformId);
+  if (auto platformPointer = platform.lock()) {
+    auto translation = platformPointer->getTransform()->getTranslation();
+    translation.x += 1.0f;
+    platformPointer->getTransform()->setTranslation(translation);
+  }
 }

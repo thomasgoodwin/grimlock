@@ -6,9 +6,14 @@
 #include "Constants.h"
 #include "Engine.h"
 
-GameObject::GameObject(std::string& name, uint64_t id) : m_objectName(name), m_id(id)
+GameObject::GameObject()
 {
-  m_texture = std::make_shared<Texture>("assets/textures/cool.png");
+
+}
+
+GameObject::GameObject(const std::string& name, uint64_t id, const std::string& texturePath) : m_objectName(name), m_id(id)
+{
+  m_texture = std::make_shared<Texture>(texturePath);
   m_transform = std::make_shared<Transform>();
   m_shader = Engine::get().getGraphicsManager().addShader("assets/shaders/simple.vert", "assets/shaders/simple.frag");
   m_vertices = {
@@ -40,7 +45,7 @@ void GameObject::LinkGraphics()
 
 void GameObject::initialize()
 {
-  LinkGraphics();
+
 }
 
 void GameObject::tick(float dt)
@@ -50,6 +55,7 @@ void GameObject::tick(float dt)
 
 void GameObject::render()
 {
+  LinkGraphics();
   m_shader->activate();
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection = glm::ortho(-16.0f / 2.0f, 16.0f / 2.0f, -9.0f / 2.0f, 9.0f / 2.0f, -1.0f, 1.0f);
