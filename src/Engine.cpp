@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "Graphics/GraphicsManager.h"
 #include "Physics/PhysicsManager.h"
+#include "Physics/PhysicsComponent.h"
 #include "GameObject/GameObject.h"
 #include "Engine.h"
 #include "Util.h"
@@ -91,6 +92,11 @@ GraphicsManager& Engine::getGraphicsManager()
   return *reinterpret_cast<GraphicsManager*>(Engine::get().m_graphicsManager.get());
 }
 
+PhysicsManager& Engine::getPhysicsManager()
+{
+  return *reinterpret_cast<PhysicsManager*>(Engine::get().m_physicsManager.get());
+}
+
 Engine& Engine::get()
 {
   static Engine _instance;
@@ -133,12 +139,17 @@ void Engine::testCase1()
 {
   uint64_t mainBoxId = addGameObject("main box");
   m_physicsManager->registerCollisionComponent(mainBoxId, "box");
+  m_physicsManager->registerPhysicsComponent(mainBoxId, BodyType::Dynamic);
   uint64_t platformId = addGameObject("platform", "assets/textures/blackBox");
   m_physicsManager->registerCollisionComponent(platformId, "box", true);
+  m_physicsManager->registerPhysicsComponent(platformId, BodyType::Static);
   auto platform = Engine::get().getGameObjectById(platformId);
   if (auto platformPointer = platform.lock()) {
-    auto translation = platformPointer->getTransform()->getTranslation();
-    translation.x += 1.0f;
+    glm::vec2 translation = platformPointer->getTransform()->getTranslation();
+    translation.y -= 2.0f;
+    glm::vec2 scale = platformPointer->getTransform()->getScale();
+    scale.x += 5.0f;
+    platformPointer->getTransform()->setScale(scale);
     platformPointer->getTransform()->setTranslation(translation);
   }
 }

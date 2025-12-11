@@ -5,11 +5,13 @@
 #include <memory>
 
 class GameObject;
+class Transform;
 
 struct CollisionInfo {
-  CollisionInfo(const glm::vec2& collisionLocation, const std::string& collisionType);
+  CollisionInfo(GameObject* aObject, GameObject* bObject, const std::string& collisionType);
   CollisionInfo(bool isColliding);
-  glm::vec2 location;
+  GameObject* aGameObject;
+  GameObject* bGameObject;
   std::string type;
   bool collision;
 };
@@ -22,8 +24,9 @@ public:
   void setIsStatic(bool isStatic);
   bool getIsTrigger() const;
   void setIsTrigger(bool isTrigger);
-  std::shared_ptr<GameObject> getOwner();
+  GameObject* getOwner();
   std::string getType();
+  uint64_t getOwnerId();
 private:
   bool m_isStatic = false;
   bool m_isTrigger = false;

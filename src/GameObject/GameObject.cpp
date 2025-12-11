@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Graphics/GraphicsManager.h"
+#include "Physics/PhysicsManager.h"
+#include "Physics/Collision/Collision.h"
+#include "Physics/PhysicsComponent.h"
 #include "GameObject.h"
 #include "Constants.h"
 #include "Engine.h"
@@ -50,7 +53,7 @@ void GameObject::initialize()
 
 void GameObject::tick(float dt)
 {
-  //m_transform->debug();
+
 }
 
 void GameObject::render()
@@ -99,7 +102,8 @@ std::shared_ptr<Transform> GameObject::getTransform()
 void GameObject::applyForces(float dt)
 {
   // apply gravity and momentum
+  glm::vec2 velocity = Engine::get().getPhysicsManager().getPhysicsComponent(m_id)->getVelocity();
   glm::vec2 position = m_transform->getTranslation();
-  position.y -= GRAVITY * dt;
+  position += velocity * dt;
   m_transform->setTranslation(position);
 }

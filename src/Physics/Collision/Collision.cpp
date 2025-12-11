@@ -2,8 +2,8 @@
 #include "Engine.h"
 #include <iostream>
 
-CollisionInfo::CollisionInfo(const glm::vec2& collisionLocation, const std::string& collisionType)
-  : location(collisionLocation), type(collisionType), collision(true) {
+CollisionInfo::CollisionInfo(GameObject* aObject, GameObject* bObject, const std::string& collisionType)
+  : aGameObject(aObject), bGameObject(bObject), type(collisionType), collision(true) {
 }
 
 CollisionInfo::CollisionInfo(bool isColliding) : collision(isColliding) {}
@@ -27,16 +27,19 @@ void Collision::setIsTrigger(bool isTrigger)
 {
   m_isTrigger = isTrigger;
 }
-std::shared_ptr<GameObject> Collision::getOwner()
+GameObject* Collision::getOwner()
 {
-  
   if (auto p = Engine::get().getGameObjectById(m_owner).lock()) {
-    return p;
+    return p.get();
   }
   else {
     std::cout << "Error in Collision::getOwner, owner does not exist." << std::endl;
     return nullptr;
   }
+}
+uint64_t Collision::getOwnerId()
+{
+  return m_owner;
 }
 std::string Collision::getType()
 {

@@ -22,6 +22,7 @@ public:
   float getDeltaTime();
   static Engine& get();
   static GraphicsManager& getGraphicsManager();
+  static PhysicsManager& getPhysicsManager();
   std::weak_ptr<GameObject> getGameObjectById(uint64_t id);
   uint64_t addGameObject(const std::string& name, const std::string& texturePath = std::string("assets/textures/cool.png"));
   void testCase1();
