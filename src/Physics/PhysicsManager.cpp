@@ -1,9 +1,13 @@
 #include <iostream>
+#include <GL/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Collision/Collision.h"
 #include "PhysicsManager.h"
 #include "GameObject/GameObject.h"
 #include "Constants.h"
 #include "GameObject/Transform.h"
+#include "Graphics/GraphicsManager.h"
+#include "Engine.h"
 
 PhysicsManager::PhysicsManager()
 {
@@ -15,10 +19,36 @@ PhysicsManager::~PhysicsManager()
 }
 void PhysicsManager::initialize()
 {
+  // Unit square outline — 4 corners, drawn with GL_LINE_LOOP
+  float boxVerts[] = {
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.5f,  0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+  };
 
+  m_debugVAO = std::make_shared<VAO>();
+  m_debugVBO = std::make_shared<VBO>(boxVerts, sizeof(boxVerts));
+
+  m_debugVAO->bind();
+  m_debugVBO->bind();
+  m_debugVAO->linkAttribute(*m_debugVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+  m_debugVAO->unbind();
+
+  m_debugShader = Engine::get().getGraphicsManager().addShader(
+    "assets/shaders/debug.vert",
+    "assets/shaders/debug.frag"
+  );
 }
 void PhysicsManager::tick(float dt)
 {
+  // Reset grounded each tick so walking off an edge clears the flag naturally
+  for (const auto& physics : m_physicsComponents) {
+    if (physics->isDynamic()) {
+      physics->setIsGrounded(false);
+    }
+  }
+
   for (const auto& physics : m_physicsComponents) {
     if (physics->isDynamic()) {
       glm::vec2 velocity = physics->getVelocity();
@@ -64,14 +94,21 @@ void PhysicsManager::registerPhysicsComponent(uint64_t owner, BodyType type)
 CollisionInfo PhysicsManager::checkCollision(Collision& aCollider, Collision& bCollider)
 {
   if (aCollider.getType() == "box" && bCollider.getType() == "box") {
-    Transform& transform1 = *aCollider.getOwner()->getTransform();
-    Transform& transform2 = *bCollider.getOwner()->getTransform();
-    bool collisionX = transform1.getTranslation().x + transform1.getScale().x >= transform2.getTranslation().x &&
-      transform2.getTranslation().x + transform2.getScale().x >= transform1.getTranslation().x;
-    bool collisionY = transform1.getTranslation().y + transform1.getScale().y >= transform2.getTranslation().y &&
-      transform2.getTranslation().y + transform2.getScale().y >= transform1.getTranslation().y;
+    glm::vec2 aPos  = aCollider.getColliderCenter();
+    glm::vec2 bPos  = bCollider.getColliderCenter();
+    glm::vec2 aSize = aCollider.getColliderSize();
+    glm::vec2 bSize = bCollider.getColliderSize();
+
+    glm::vec2 aMin = aPos - aSize * 0.5f;
+    glm::vec2 aMax = aPos + aSize * 0.5f;
+    glm::vec2 bMin = bPos - bSize * 0.5f;
+    glm::vec2 bMax = bPos + bSize * 0.5f;
+
+    bool collisionX = aMax.x >= bMin.x && bMax.x >= aMin.x;
+    bool collisionY = aMax.y >= bMin.y && bMax.y >= aMin.y;
+
     if (collisionX && collisionY) {
-      return CollisionInfo(aCollider.getOwner(), aCollider.getOwner(), "box/box");
+      return CollisionInfo(aCollider.getOwner(), bCollider.getOwner(), "box/box");
     }
   }
   return CollisionInfo(false);
@@ -85,11 +122,11 @@ void PhysicsManager::resolveCollision(Collision& aCollider, Collision& bCollider
   auto bTransform = info.bGameObject->getTransform();
 
   // maybe use collider metrics instead
-  glm::vec2 aPos = aTransform->getTranslation();
-  glm::vec2 bPos = bTransform->getTranslation();
+  glm::vec2 aPos = aCollider.getColliderCenter();
+  glm::vec2 bPos = bCollider.getColliderCenter();
 
-  glm::vec2 aHalf = aTransform->getScale() * 0.5f;
-  glm::vec2 bHalf = bTransform->getScale() * 0.5f;
+  glm::vec2 aHalf = aCollider.getColliderSize() * 0.5f;
+  glm::vec2 bHalf = bCollider.getColliderSize() * 0.5f;
 
   float dx = aPos.x - bPos.x;
   float px = (aHalf.x + bHalf.x) - std::abs(dx);
@@ -156,25 +193,35 @@ void PhysicsManager::resolveCollision(Collision& aCollider, Collision& bCollider
     aPos.y += sy * aMove;
     bPos.y -= sy * bMove;
 
+    // sy > 0 means a was pushed upward (landed on top of b).
+    // Only zero velocity and mark grounded if the body was actually moving into
+    // the surface (velocity opposes the push direction). This prevents collision
+    // resolution from cancelling a jump impulse set in the same frame.
     if (aPhysics && aPhysics->isDynamic()) {
       glm::vec2 velocity = aPhysics->getVelocity();
-      velocity.y = 0;
-      aPhysics->setVelocity(velocity);
-      if (sy < 0) {
+      if (sy > 0.0f && velocity.y <= 0.0f) {
+        velocity.y = 0.0f;
         aPhysics->setIsGrounded(true);
       }
+      else if (sy < 0.0f && velocity.y >= 0.0f) {
+        velocity.y = 0.0f;
+      }
+      aPhysics->setVelocity(velocity);
     }
     if (bPhysics && bPhysics->isDynamic()) {
       glm::vec2 velocity = bPhysics->getVelocity();
-      velocity.y = 0;
-      bPhysics->setVelocity(velocity);
-      if (sy > 0) {
+      if (sy < 0.0f && velocity.y >= 0.0f) {
+        velocity.y = 0.0f;
         bPhysics->setIsGrounded(true);
       }
+      else if (sy > 0.0f && velocity.y <= 0.0f) {
+        velocity.y = 0.0f;
+      }
+      bPhysics->setVelocity(velocity);
     }
   }
-  aTransform->setTranslation(aPos);
-  bTransform->setTranslation(bPos);
+  aTransform->setTranslation(aPos - aCollider.getColliderOffset());
+  bTransform->setTranslation(bPos - bCollider.getColliderOffset());
 }
 Collision* PhysicsManager::getCollisionComponent(uint64_t owner) const
 {
@@ -190,6 +237,18 @@ Collision* PhysicsManager::getCollisionComponent(uint64_t owner) const
   }
   return nullptr;
 }
+void PhysicsManager::setColliderSize(uint64_t owner, const glm::vec2& size)
+{
+  Collision* c = getCollisionComponent(owner);
+  if (c) c->setColliderSize(size);
+}
+
+void PhysicsManager::setColliderOffset(uint64_t owner, const glm::vec2& offset)
+{
+  Collision* c = getCollisionComponent(owner);
+  if (c) c->setColliderOffset(offset);
+}
+
 PhysicsComponent* PhysicsManager::getPhysicsComponent(uint64_t owner) const
 {
   for (int i = 0; i < m_physicsComponents.size(); i++) {
@@ -201,7 +260,37 @@ PhysicsComponent* PhysicsManager::getPhysicsComponent(uint64_t owner) const
 }
 void PhysicsManager::render()
 {
+  m_debugShader->activate();
+  m_debugVAO->bind();
 
+  glm::mat4 view       = glm::mat4(1.0f);
+  glm::mat4 projection = glm::ortho(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f);
+  m_debugShader->setMat4("view", view);
+  m_debugShader->setMat4("projection", projection);
+
+  auto drawColliders = [&](const auto& colliders, const glm::vec4& color)
+  {
+    m_debugShader->setVec4("color", color);
+    for (const auto& collider : colliders)
+    {
+      GameObject* owner = collider->getOwner();
+      if (!owner) continue;
+
+      glm::vec2 pos   = collider->getColliderCenter();
+      glm::vec2 scale = collider->getColliderSize();
+
+      glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
+      model           = glm::scale(model, glm::vec3(scale, 1.0f));
+      m_debugShader->setMat4("model", model);
+
+      glDrawArrays(GL_LINE_LOOP, 0, 4);
+    }
+  };
+
+  drawColliders(m_dynamicColliders, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)); // green — dynamic
+  drawColliders(m_staticColliders,  glm::vec4(1.0f, 0.3f, 0.0f, 1.0f)); // orange — static
+
+  m_debugVAO->unbind();
 }
 void PhysicsManager::shutdown()
 {

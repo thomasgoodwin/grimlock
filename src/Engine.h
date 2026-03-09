@@ -27,6 +27,7 @@ public:
   static EventManager& getEventManager();
   std::weak_ptr<GameObject> getGameObjectById(uint64_t id);
   uint64_t addGameObject(const std::string& name, const std::string& texturePath = std::string("assets/textures/cool.png"));
+  uint64_t addPlayerObject(const std::string& name);
   void testCase1();
   void killEngine();
   void printGameObjects() const;

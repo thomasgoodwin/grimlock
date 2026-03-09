@@ -5,6 +5,7 @@
 #include "Physics/PhysicsManager.h"
 #include "Physics/PhysicsComponent.h"
 #include "GameObject/GameObject.h"
+#include "Player/PlayerObject.h"
 #include "Events/EventManager.h"
 #include "Engine.h"
 #include "Util.h"
@@ -74,6 +75,7 @@ void Engine::tick(float dt)
       gameObject->tick(dt);
     }
   }
+  m_eventManager->tick(dt);
   m_graphicsManager->tick(dt);
   m_physicsManager->tick(dt);
 }
@@ -119,6 +121,13 @@ uint64_t Engine::addGameObject(const std::string& name, const std::string& textu
   return objectId;
 }
 
+uint64_t Engine::addPlayerObject(const std::string& name)
+{
+  uint64_t objectId = generate_uuid();
+  m_gameObjects[objectId] = std::make_shared<PlayerObject>(name, objectId);
+  return objectId;
+}
+
 std::weak_ptr<GameObject> Engine::getGameObjectById(uint64_t id)
 {
   try {
@@ -146,19 +155,23 @@ void Engine::printGameObjects() const
 // test cases
 void Engine::testCase1()
 {
-  uint64_t mainBoxId = addGameObject("main box");
-  m_physicsManager->registerCollisionComponent(mainBoxId, "box");
-  m_physicsManager->registerPhysicsComponent(mainBoxId, BodyType::Dynamic);
+  uint64_t playerId = addPlayerObject("player");
+  m_physicsManager->registerCollisionComponent(playerId, "box");
+  m_physicsManager->registerPhysicsComponent(playerId, BodyType::Dynamic);
+  // Tight hitbox — tune these to match the visible character body
+  auto player = getGameObjectById(playerId).lock();
+  if (player)
+  {
+    glm::vec2 frameSize = player->getTransform()->getScale();
+    m_physicsManager->setColliderOffset(playerId, glm::vec2(0.0f, 0.275f));
+    m_physicsManager->setColliderSize(playerId, glm::vec2(frameSize.x * 0.5f, frameSize.y * 0.65f));
+  }
   uint64_t platformId = addGameObject("platform", "assets/textures/blackBox");
   m_physicsManager->registerCollisionComponent(platformId, "box", true);
   m_physicsManager->registerPhysicsComponent(platformId, BodyType::Static);
   auto platform = Engine::get().getGameObjectById(platformId);
   if (auto platformPointer = platform.lock()) {
-    glm::vec2 translation = platformPointer->getTransform()->getTranslation();
-    translation.y -= 2.0f;
-    glm::vec2 scale = platformPointer->getTransform()->getScale();
-    scale.x += 5.0f;
-    platformPointer->getTransform()->setScale(scale);
-    platformPointer->getTransform()->setTranslation(translation);
+    platformPointer->getTransform()->setTranslation(glm::vec2(0.0f, -3.0f));
+    platformPointer->getTransform()->setScale(glm::vec2(8.0f, 0.5f));
   }
 }

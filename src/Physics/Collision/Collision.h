@@ -27,11 +27,28 @@ public:
   GameObject* getOwner();
   std::string getType();
   uint64_t getOwnerId();
+
+  // Override the collision box size. When set, physics and debug rendering use
+  // this instead of the owner's transform scale.
+  void setColliderSize(const glm::vec2& size);
+  glm::vec2 getColliderSize() const;
+  bool hasColliderSizeOverride() const;
+
+  // Shift the collision box center relative to the sprite's transform position.
+  // Useful when the character is not centered in its sprite frame.
+  void setColliderOffset(const glm::vec2& offset);
+  glm::vec2 getColliderOffset() const;
+
+  // Returns the world-space center of the collision box for this frame.
+  glm::vec2 getColliderCenter() const;
+
 private:
   bool m_isStatic = false;
   bool m_isTrigger = false;
   uint64_t m_owner;
   std::string m_type = "";
+  glm::vec2 m_sizeOverride = glm::vec2(-1.0f);
+  glm::vec2 m_offset       = glm::vec2(0.0f);
 };
 
 #endif

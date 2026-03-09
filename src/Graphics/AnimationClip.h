@@ -1,0 +1,15 @@
+#ifndef ANIMATION_CLIP_H
+#define ANIMATION_CLIP_H
+#include <string>
+
+struct AnimationClip
+{
+  std::string name;
+  int row;         // sprite sheet row (0-indexed from top)
+  int startFrame;  // first frame column (0-indexed)
+  int endFrame;    // last frame column (inclusive)
+  float fps;       // frames per second
+  bool loop;
+};
+
+#endif

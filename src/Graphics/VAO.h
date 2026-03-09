@@ -3,6 +3,8 @@
 #include "VBO.h"
 
 typedef unsigned int GLenum;
+typedef int          GLint;
+typedef int          GLsizei;
 
 class VAO
 {

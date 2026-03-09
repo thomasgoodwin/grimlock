@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "Engine.h"
 
 EventManager::EventManager()
 {
@@ -42,14 +43,51 @@ void EventManager::enqueue(Event event) {
   m_events.push(std::move(event));
 }
 
+void EventManager::bindKey(int glfwKey, int glfwAction, Event callback)
+{
+  if (glfwAction == GLFW_PRESS)
+  {
+    m_keyPressBindings[glfwKey].push_back(std::move(callback));
+  }
+  else if (glfwAction == GLFW_RELEASE)
+  {
+    m_keyReleaseBindings[glfwKey].push_back(std::move(callback));
+  }
+}
+
+void EventManager::dispatchKeyEvent(int key, int action)
+{
+  if (action == GLFW_PRESS)
+  {
+    auto it = m_keyPressBindings.find(key);
+    if (it != m_keyPressBindings.end())
+    {
+      for (auto& cb : it->second)
+      {
+        enqueue(cb);
+      }
+    }
+  }
+  else if (action == GLFW_RELEASE)
+  {
+    auto it = m_keyReleaseBindings.find(key);
+    if (it != m_keyReleaseBindings.end())
+    {
+      for (auto& cb : it->second)
+      {
+        enqueue(cb);
+      }
+    }
+  }
+}
+
 void EventManager::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
   {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
+    return;
   }
-  else {
-    std::cout << key << scancode << action << mods << std::endl;
-  }
+  Engine::get().getEventManager().dispatchKeyEvent(key, action);
 }
 

@@ -10,6 +10,7 @@
 #include "Graphics/VBO.h"
 #include "Graphics/VAO.h"
 #include "Graphics/EBO.h"
+#include "Graphics/AnimatedSpriteComponent.h"
 
 class GameObject
 {
@@ -38,6 +39,9 @@ public:
   std::shared_ptr<Texture> getTexture();
   std::shared_ptr<Transform> getTransform();
 
+  void attachAnimatedSprite(int sheetCols, int sheetRows);
+  std::shared_ptr<AnimatedSpriteComponent> getAnimatedSprite();
+
   void applyForces(float dt);
 
 private:
@@ -55,6 +59,7 @@ private:
   std::vector<float> m_vertices;
   std::vector<unsigned int> m_indices;
   uint64_t m_id;
+  std::shared_ptr<AnimatedSpriteComponent> m_animatedSprite;
 };
 
 #endif
