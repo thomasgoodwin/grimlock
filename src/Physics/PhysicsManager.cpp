@@ -26,9 +26,7 @@ void PhysicsManager::tick(float dt)
       physics->setVelocity(velocity);
     }
   }
-  for (const auto& collider : m_dynamicColliders) {
-    collider->getOwner()->applyForces(dt);
-  }
+
   // use n^2 for now and manage isTrigger
   for (int i = 0; i < m_dynamicColliders.size(); i++) {
     for (int j = i + 1; j < m_dynamicColliders.size(); j++) {
@@ -45,6 +43,9 @@ void PhysicsManager::tick(float dt)
         resolveCollision(*aCollider, *bCollider, info);
       }
     }
+  }
+  for (const auto& collider : m_dynamicColliders) {
+    collider->getOwner()->applyForces(dt);
   }
 }
 void PhysicsManager::registerCollisionComponent(uint64_t owner, const std::string type, bool isStatic)
@@ -83,6 +84,7 @@ void PhysicsManager::resolveCollision(Collision& aCollider, Collision& bCollider
   auto aTransform = info.aGameObject->getTransform();
   auto bTransform = info.bGameObject->getTransform();
 
+  // maybe use collider metrics instead
   glm::vec2 aPos = aTransform->getTranslation();
   glm::vec2 bPos = bTransform->getTranslation();
 
@@ -103,10 +105,10 @@ void PhysicsManager::resolveCollision(Collision& aCollider, Collision& bCollider
   float aMove = 1.0f;
   float bMove = 0.0f;
 
-  std::cout << "px=" << px << " py=" << py
-    << " aHalf=" << aHalf.y
-    << " bHalf=" << bHalf.y
-    << std::endl;
+  //std::cout << "px=" << px << " py=" << py
+  //  << " aHalf=" << aHalf.y
+  //  << " bHalf=" << bHalf.y
+  //  << std::endl;
   if (aPhysics && bPhysics) {
     if (aPhysics->isDynamic() && bPhysics->isDynamic()) {
       aMove = 0.5f;
@@ -137,7 +139,6 @@ void PhysicsManager::resolveCollision(Collision& aCollider, Collision& bCollider
   }
 
   if (resolveX) {
-    std::cout << resolveX << std::endl;
     float sx = (dx < 0 ? -px : px);
 
     aPos.x += sx * aMove;
@@ -160,7 +161,6 @@ void PhysicsManager::resolveCollision(Collision& aCollider, Collision& bCollider
       velocity.y = 0;
       aPhysics->setVelocity(velocity);
       if (sy < 0) {
-        std::cout << sy << std::endl;
         aPhysics->setIsGrounded(true);
       }
     }
@@ -169,7 +169,6 @@ void PhysicsManager::resolveCollision(Collision& aCollider, Collision& bCollider
       velocity.y = 0;
       bPhysics->setVelocity(velocity);
       if (sy > 0) {
-        std::cout << sy << std::endl;
         bPhysics->setIsGrounded(true);
       }
     }

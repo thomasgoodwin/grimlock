@@ -9,6 +9,7 @@
 class GraphicsManager;
 class PhysicsManager;
 class GameObject;
+class EventManager;
 
 class Engine
 {
@@ -23,6 +24,7 @@ public:
   static Engine& get();
   static GraphicsManager& getGraphicsManager();
   static PhysicsManager& getPhysicsManager();
+  static EventManager& getEventManager();
   std::weak_ptr<GameObject> getGameObjectById(uint64_t id);
   uint64_t addGameObject(const std::string& name, const std::string& texturePath = std::string("assets/textures/cool.png"));
   void testCase1();
@@ -35,6 +37,7 @@ private:
   void render();
   std::unique_ptr<GraphicsManager> m_graphicsManager;
   std::unique_ptr<PhysicsManager> m_physicsManager;
+  std::unique_ptr<EventManager> m_eventManager;
   float m_deltaTime;
   bool m_gameIsRunning = true;
   std::chrono::system_clock::time_point m_currentTime;

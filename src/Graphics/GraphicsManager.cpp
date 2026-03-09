@@ -6,24 +6,13 @@
 #include "Shader.h"
 #include "Engine.h"
 #include "Util.h"
+#include "Events/EventManager.h"
 
 void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id,
   GLenum severity, GLsizei length,
   const GLchar* message, const void* userParam)
 {
   std::cerr << "GL ERROR: " << message << std::endl;
-}
-
-void HandleKeyInput(GLFWwindow* window, int key, int status, int action, int mods)
-{
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-  {
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-  }
-  else
-  {
-    DEBUG&& std::cout << "key: " << key << "; status: " << status << "; action: " << action << "; mods: " << mods << std::endl;
-  }
 }
 
 GraphicsManager::GraphicsManager()
@@ -33,7 +22,6 @@ GraphicsManager::GraphicsManager()
     std::exit(-1);
   }
 
-  glfwSetKeyCallback(m_window, HandleKeyInput);
   if (!initGLEW()) {
     std::cerr << "Failed to initialize GLEW" << std::endl;
     std::exit(-1);
@@ -135,6 +123,7 @@ void GraphicsManager::initialize()
   glDebugMessageCallback(DebugCallback, 0);
   glfwGetFramebufferSize(m_window, &m_width, &m_height);
   glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
+  glfwSetKeyCallback(m_window, EventManager::keyCallback);
 }
 
 void GraphicsManager::tick(float dt)

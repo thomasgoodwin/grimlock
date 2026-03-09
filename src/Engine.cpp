@@ -5,10 +5,14 @@
 #include "Physics/PhysicsManager.h"
 #include "Physics/PhysicsComponent.h"
 #include "GameObject/GameObject.h"
+#include "Events/EventManager.h"
 #include "Engine.h"
 #include "Util.h"
 
-Engine::Engine() : m_graphicsManager(std::make_unique<GraphicsManager>()), m_physicsManager(std::make_unique<PhysicsManager>())
+Engine::Engine() :
+  m_graphicsManager(std::make_unique<GraphicsManager>()),
+  m_physicsManager(std::make_unique<PhysicsManager>()),
+  m_eventManager(std::make_unique<EventManager>())
 {
 
 }
@@ -95,6 +99,11 @@ GraphicsManager& Engine::getGraphicsManager()
 PhysicsManager& Engine::getPhysicsManager()
 {
   return *reinterpret_cast<PhysicsManager*>(Engine::get().m_physicsManager.get());
+}
+
+EventManager& Engine::getEventManager()
+{
+  return *reinterpret_cast<EventManager*>(Engine::get().m_eventManager.get());
 }
 
 Engine& Engine::get()
