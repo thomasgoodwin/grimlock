@@ -6,6 +6,8 @@
 #include "Events/MovementEvent.h"
 #include "GameObject/GameObject.h"
 #include "Constants.h"
+#include "Physics/PhysicsManager.h"
+#include "Physics/PhysicsComponent.h"
 
 CharacterController::CharacterController(uint64_t ownerId)
   : m_ownerId(ownerId)
@@ -59,12 +61,15 @@ void CharacterController::initialize()
   uint64_t id = m_ownerId;
 
   em.bindKey(GLFW_KEY_W, GLFW_PRESS, [id]() {
-    Engine::get().getEventManager().enqueue(MovementEvent(id, MovementType::Jump, JUMP_IMPULSE));
-    Engine::get().getEventManager().enqueue([id]() {
-      if (auto obj = Engine::get().getGameObjectById(id).lock())
-        if (auto anim = obj->getAnimatedSprite())
-          anim->triggerAnimation("jump");
-    });
+    PhysicsComponent* physics = Engine::get().getPhysicsManager().getPhysicsComponent(id);
+    if (physics->getIsGrounded()) {
+      Engine::get().getEventManager().enqueue(MovementEvent(id, MovementType::Jump, JUMP_IMPULSE));
+      Engine::get().getEventManager().enqueue([id]() {
+        if (auto obj = Engine::get().getGameObjectById(id).lock())
+          if (auto anim = obj->getAnimatedSprite())
+            anim->triggerAnimation("jump");
+      });
+    }
   });
 
   em.bindKey(GLFW_KEY_S, GLFW_PRESS, [id]() {

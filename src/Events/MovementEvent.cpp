@@ -23,8 +23,6 @@ void MovementEvent::operator()() const
       break;
 
     case MovementType::Jump:
-      if (!physics->getIsGrounded())
-        break;
       velocity.y = m_value;
       break;
 
