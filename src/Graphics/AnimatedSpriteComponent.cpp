@@ -20,9 +20,9 @@ void AnimatedSpriteComponent::setCyclingAnimation(const std::string& name)
   if (m_mode != AnimationPlayMode::Event)
   {
     m_currentClipName = name;
-    m_currentFrame    = m_clips.at(name).startFrame;
-    m_elapsed         = 0.0f;
-    m_mode            = AnimationPlayMode::Cycling;
+    m_currentFrame = m_clips.at(name).startFrame;
+    m_elapsed = 0.0f;
+    m_mode = AnimationPlayMode::Cycling;
   }
 }
 
@@ -32,9 +32,9 @@ void AnimatedSpriteComponent::triggerAnimation(const std::string& name)
     return;
 
   m_currentClipName = name;
-  m_currentFrame    = m_clips.at(name).startFrame;
-  m_elapsed         = 0.0f;
-  m_mode            = AnimationPlayMode::Event;
+  m_currentFrame = m_clips.at(name).startFrame;
+  m_elapsed = 0.0f;
+  m_mode = AnimationPlayMode::Event;
 }
 
 void AnimatedSpriteComponent::tick(float dt)
@@ -65,9 +65,9 @@ void AnimatedSpriteComponent::tick(float dt)
         if (!m_cyclingClipName.empty())
         {
           m_currentClipName = m_cyclingClipName;
-          m_currentFrame    = m_clips.at(m_cyclingClipName).startFrame;
-          m_elapsed         = 0.0f;
-          m_mode            = AnimationPlayMode::Cycling;
+          m_currentFrame = m_clips.at(m_cyclingClipName).startFrame;
+          m_elapsed = 0.0f;
+          m_mode = AnimationPlayMode::Cycling;
         }
         break;
       }
@@ -85,8 +85,6 @@ glm::vec2 AnimatedSpriteComponent::getUVOffset() const
   float x = static_cast<float>(m_currentFrame) / static_cast<float>(m_sheetCols);
   float y = static_cast<float>(m_sheetRows - 1 - clip.row) / static_cast<float>(m_sheetRows);
 
-  // When flipped, shift the X origin one frame-width to the right so the
-  // negative uvScale sweeps back across the correct frame.
   if (m_flipX)
     x += 1.0f / static_cast<float>(m_sheetCols);
 

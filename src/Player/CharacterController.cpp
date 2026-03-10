@@ -16,33 +16,34 @@ CharacterController::CharacterController(uint64_t ownerId)
 
 void CharacterController::applyHorizontal()
 {
-  float vel      = 0.0f;
-  bool  moving   = false;
-  bool  facingLeft = false;
+  float velocity = 0.0f;
+  bool moving = false;
+  bool facingLeft = false;
 
   if (m_leftHeld && !m_rightHeld)
   {
-    vel = -MOVE_SPEED;
+    velocity = -MOVE_SPEED;
     moving = true;
     facingLeft = true;
   }
   else if (m_rightHeld && !m_leftHeld)
   {
-    vel = MOVE_SPEED;
+    velocity = MOVE_SPEED;
     moving = true;
     facingLeft = false;
   }
-  // Both held or neither held → vel stays 0, moving stays false
+  // Both held or neither held so velocity stays 0, moving stays false
 
   uint64_t id = m_ownerId;
   EventManager& em = Engine::get().getEventManager();
 
-  em.enqueue(MovementEvent(id, MovementType::Horizontal, vel));
+  em.enqueue(MovementEvent(id, MovementType::Horizontal, velocity));
   em.enqueue([id, moving, facingLeft]() {
     if (auto obj = Engine::get().getGameObjectById(id).lock())
       if (auto anim = obj->getAnimatedSprite())
       {
-        if (moving) anim->setFlipX(facingLeft);
+        if (moving) 
+          anim->setFlipX(facingLeft);
         anim->setCyclingAnimation(moving ? "run" : "idle");
       }
   });

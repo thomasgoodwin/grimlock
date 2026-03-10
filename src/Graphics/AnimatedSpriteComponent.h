@@ -43,8 +43,8 @@ private:
   std::string m_cyclingClipName;
 
   int m_currentFrame = 0;
-  float m_elapsed    = 0.0f;
-  bool m_flipX       = false;
+  float m_elapsed = 0.0f;
+  bool m_flipX = false;
 };
 
 #endif
