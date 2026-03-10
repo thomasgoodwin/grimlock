@@ -36,8 +36,8 @@ private:
   std::vector<std::unique_ptr<PhysicsComponent>> m_physicsComponents;
 
   std::shared_ptr<Shader> m_debugShader;
-  std::shared_ptr<VAO>    m_debugVAO;
-  std::shared_ptr<VBO>    m_debugVBO;
+  std::shared_ptr<VAO> m_debugVAO;
+  std::shared_ptr<VBO> m_debugVBO;
 };
 
 #endif

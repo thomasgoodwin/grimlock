@@ -5,6 +5,8 @@
 #include <memory>
 #include <array>
 #include <unordered_map>
+#include <queue>
+#include "Util.h"
 
 class GraphicsManager;
 class PhysicsManager;
@@ -26,11 +28,19 @@ public:
   static PhysicsManager& getPhysicsManager();
   static EventManager& getEventManager();
   std::weak_ptr<GameObject> getGameObjectById(uint64_t id);
-  uint64_t addGameObject(const std::string& name, const std::string& texturePath = std::string("assets/textures/cool.png"));
+  template <typename T, typename... Args>
+  uint64_t addGameObject(Args&&... args)
+  {
+    static_assert(std::is_base_of<GameObject, T>::value, "T must derive from GameObject");
+    uint64_t objectId = generate_uuid();
+    m_gameObjects[objectId] = std::make_shared<T>(objectId, std::forward<Args>(args)...);
+    return objectId;
+  }
   uint64_t addPlayerObject(const std::string& name);
   void testCase1();
   void killEngine();
   void printGameObjects() const;
+  void destroyObject(uint64_t id);
 private:
   Engine();
   static Engine _instance;
@@ -43,6 +53,7 @@ private:
   bool m_gameIsRunning = true;
   std::chrono::system_clock::time_point m_currentTime;
   std::unordered_map<uint64_t, std::shared_ptr<GameObject>> m_gameObjects;
+  std::queue<uint64_t> m_destroyQueue;
 };
 
 #endif

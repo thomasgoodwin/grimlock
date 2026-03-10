@@ -14,7 +14,7 @@ GameObject::GameObject()
 
 }
 
-GameObject::GameObject(const std::string& name, uint64_t id, const std::string& texturePath) : m_objectName(name), m_id(id)
+GameObject::GameObject(uint64_t id, const std::string& name, const std::string& texturePath) : m_objectName(name), m_id(id)
 {
   m_texture = std::make_shared<Texture>(texturePath);
   m_transform = std::make_shared<Transform>();
@@ -22,7 +22,7 @@ GameObject::GameObject(const std::string& name, uint64_t id, const std::string& 
   // Size the quad to match the texture's pixel dimensions in world units
   if (m_texture->getWidth() > 0 && m_texture->getHeight() > 0)
   {
-    float w = m_texture->getWidth()  / PIXELS_PER_UNIT;
+    float w = m_texture->getWidth() / PIXELS_PER_UNIT;
     float h = m_texture->getHeight() / PIXELS_PER_UNIT;
     m_transform->setScale(glm::vec2(w, h));
   }
@@ -83,7 +83,7 @@ void GameObject::render()
   if (m_animatedSprite && m_animatedSprite->hasActiveAnimation())
   {
     m_shader->setVec2("uvOffset", m_animatedSprite->getUVOffset());
-    m_shader->setVec2("uvScale",  m_animatedSprite->getUVScale());
+    m_shader->setVec2("uvScale", m_animatedSprite->getUVScale());
   }
 }
 
@@ -123,7 +123,7 @@ void GameObject::attachAnimatedSprite(int sheetCols, int sheetRows)
 
   if (m_texture->getWidth() > 0 && m_texture->getHeight() > 0)
   {
-    float w = (m_texture->getWidth()  / static_cast<float>(sheetCols)) / PIXELS_PER_UNIT;
+    float w = (m_texture->getWidth() / static_cast<float>(sheetCols)) / PIXELS_PER_UNIT;
     float h = (m_texture->getHeight() / static_cast<float>(sheetRows)) / PIXELS_PER_UNIT;
     m_transform->setScale(glm::vec2(w, h));
   }
@@ -146,4 +146,9 @@ void GameObject::applyForces(float dt)
   glm::vec2 position = m_transform->getTranslation();
   position += velocity * dt;
   m_transform->setTranslation(position);
+}
+
+uint64_t GameObject::getId() const
+{
+  return m_id;
 }

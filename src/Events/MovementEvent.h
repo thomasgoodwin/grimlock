@@ -1,24 +1,18 @@
 #ifndef MOVEMENT_EVENT_H
 #define MOVEMENT_EVENT_H
 #include <cstdint>
-
-enum class MovementType
-{
-  Horizontal,
-  Jump,
-  Fall
-};
+#include <glm/glm.hpp>
 
 class MovementEvent
 {
 public:
-  MovementEvent(uint64_t ownerId, MovementType type, float value);
+  MovementEvent(uint64_t ownerId, glm::vec2 value, bool setDirectly = false);
   void operator()() const;
 
 private:
-  uint64_t     m_ownerId;
-  MovementType m_type;
-  float        m_value;
+  uint64_t m_ownerId;
+  glm::vec2 m_value;
+  bool m_setDirectly;
 };
 
 #endif

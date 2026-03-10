@@ -7,7 +7,7 @@
 class PlayerObject : public GameObject
 {
 public:
-  PlayerObject(const std::string& name, uint64_t id);
+  PlayerObject(uint64_t id, const std::string& name);
 
   void initialize() override;
   void tick(float dt) override;

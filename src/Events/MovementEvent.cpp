@@ -3,33 +3,22 @@
 #include "Physics/PhysicsManager.h"
 #include "Engine.h"
 
-MovementEvent::MovementEvent(uint64_t ownerId, MovementType type, float value)
-  : m_ownerId(ownerId), m_type(type), m_value(value)
+MovementEvent::MovementEvent(uint64_t ownerId, glm::vec2 value, bool setDirectly)
+  : m_ownerId(ownerId), m_value(value), m_setDirectly(setDirectly)
 {
 }
 
 void MovementEvent::operator()() const
 {
   PhysicsComponent* physics = Engine::get().getPhysicsManager().getPhysicsComponent(m_ownerId);
-  if (!physics) 
+  if (!physics)
     return;
 
   glm::vec2 velocity = physics->getVelocity();
-
-  switch (m_type)
-  {
-    case MovementType::Horizontal:
-      velocity.x = m_value;
-      break;
-
-    case MovementType::Jump:
-      velocity.y = m_value;
-      break;
-
-    case MovementType::Fall:
-      velocity.y = -m_value;
-      break;
-  }
+  if (m_setDirectly)
+    velocity.x = m_value.x; // for player input
+  else
+    velocity += m_value; // for jumps and falls
 
   physics->setVelocity(velocity);
 }

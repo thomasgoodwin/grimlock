@@ -16,7 +16,7 @@ class GameObject
 {
 public:
   GameObject();
-  GameObject(const std::string& name, uint64_t id, const std::string& texturePath);
+  GameObject(uint64_t id, const std::string& name, const std::string& texturePath);
 
   virtual void initialize();
   virtual void tick(float dt);
@@ -43,6 +43,8 @@ public:
   std::shared_ptr<AnimatedSpriteComponent> getAnimatedSprite();
 
   void applyForces(float dt);
+
+  uint64_t getId() const;
 
 private:
   bool m_isMarkedForDestruction = false;
