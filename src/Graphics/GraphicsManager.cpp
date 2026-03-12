@@ -12,7 +12,13 @@ void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id,
   GLenum severity, GLsizei length,
   const GLchar* message, const void* userParam)
 {
-  std::cerr << "GL ERROR: " << message << std::endl;
+  if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) return;
+
+  const char* label =
+    severity == GL_DEBUG_SEVERITY_HIGH   ? "GL ERROR" :
+    severity == GL_DEBUG_SEVERITY_MEDIUM ? "GL WARNING" :
+                                           "GL INFO";
+  std::cerr << label << ": " << message << std::endl;
 }
 
 GraphicsManager::GraphicsManager()
@@ -117,6 +123,15 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height)
   }
 }
 
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+  auto camera = Engine::get().getGraphicsManager().getCamera();
+  float zoom = camera->getZoom();
+  zoom *= (yoffset > 0) ? 1.1f : 0.9f;
+  zoom = glm::clamp(zoom, 0.25f, 4.0f);
+  camera->setZoom(zoom);
+}
+
 void GraphicsManager::initialize()
 {
   glEnable(GL_DEBUG_OUTPUT);
@@ -124,6 +139,7 @@ void GraphicsManager::initialize()
   glfwGetFramebufferSize(m_window, &m_width, &m_height);
   glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
   glfwSetKeyCallback(m_window, EventManager::keyCallback);
+  glfwSetScrollCallback(m_window, scrollCallback);
 }
 
 void GraphicsManager::tick(float dt)

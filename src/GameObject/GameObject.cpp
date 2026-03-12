@@ -43,6 +43,7 @@ GameObject::GameObject(uint64_t id, const std::string& name, const std::string& 
   m_vao = std::make_shared<VAO>();
   m_vbo = std::make_shared<VBO>(m_vertices.data(), m_vertices.size() * sizeof(float));
   m_ebo = std::make_shared<EBO>(m_indices.data(), m_indices.size() * sizeof(unsigned int));
+  LinkGraphics();
 }
 
 void GameObject::LinkGraphics()
@@ -57,7 +58,6 @@ void GameObject::LinkGraphics()
 
 void GameObject::initialize()
 {
-
 }
 
 void GameObject::tick(float dt)
@@ -70,10 +70,13 @@ void GameObject::tick(float dt)
 
 void GameObject::render()
 {
-  LinkGraphics();
+  m_vao->bind();
   m_shader->activate();
+  float zoom = Engine::get().getGraphicsManager().getCamera()->getZoom();
+  float hw = 8.0f / zoom;
+  float hh = 4.5f / zoom;
   glm::mat4 view = glm::mat4(1.0f);
-  glm::mat4 projection = glm::ortho(-16.0f / 2.0f, 16.0f / 2.0f, -9.0f / 2.0f, 9.0f / 2.0f, -1.0f, 1.0f);
+  glm::mat4 projection = glm::ortho(-hw, hw, -hh, hh, -1.0f, 1.0f);
   m_shader->setMat4("model", m_transform->getMatrix());
   m_shader->setMat4("view", view);
   m_shader->setMat4("projection", projection);

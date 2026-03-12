@@ -52,7 +52,8 @@ void PhysicsManager::tick(float dt)
   for (const auto& physics : m_physicsComponents) {
     if (physics->isDynamic()) {
       glm::vec2 velocity = physics->getVelocity();
-      velocity.y -= GRAVITY * dt;
+      float g = (velocity.y < 0.0f) ? GRAVITY * FALL_GRAVITY_MULT : GRAVITY;
+      velocity.y -= g * dt;
       physics->setVelocity(velocity);
     }
   }
@@ -72,8 +73,6 @@ void PhysicsManager::tick(float dt)
         resolveCollision(*aCollider, *bCollider, info);
     }
   }
-
-  // TODO: wind resist
 
   // friction 
   for (const auto& physics : m_physicsComponents) {
@@ -261,11 +260,17 @@ PhysicsComponent* PhysicsManager::getPhysicsComponent(uint64_t owner) const
 }
 void PhysicsManager::render()
 {
+  if (!m_drawDebug) 
+    return;
+
   m_debugShader->activate();
   m_debugVAO->bind();
 
+  float zoom = Engine::get().getGraphicsManager().getCamera()->getZoom();
+  float hw = 8.0f / zoom;
+  float hh = 4.5f / zoom;
   glm::mat4 view = glm::mat4(1.0f);
-  glm::mat4 projection = glm::ortho(-8.0f, 8.0f, -4.5f, 4.5f, -1.0f, 1.0f);
+  glm::mat4 projection = glm::ortho(-hw, hw, -hh, hh, -1.0f, 1.0f);
   m_debugShader->setMat4("view", view);
   m_debugShader->setMat4("projection", projection);
 

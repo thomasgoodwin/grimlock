@@ -7,12 +7,14 @@
 #include "GameObject/GameObject.h"
 #include "Player/PlayerObject.h"
 #include "Events/EventManager.h"
+#include "Audio/AudioManager.h"
 #include "Engine.h"
 
 Engine::Engine() :
   m_graphicsManager(std::make_unique<GraphicsManager>()),
   m_physicsManager(std::make_unique<PhysicsManager>()),
-  m_eventManager(std::make_unique<EventManager>())
+  m_eventManager(std::make_unique<EventManager>()),
+  m_audioManager(std::make_unique<AudioManager>())
 {
 
 }
@@ -21,6 +23,7 @@ void Engine::initialize()
 {
   m_graphicsManager->initialize();
   m_physicsManager->initialize();
+  m_audioManager->initialize();
   m_currentTime = std::chrono::system_clock::now();
   for (auto& [id, gameObject] : m_gameObjects) {
     gameObject->initialize();
@@ -60,6 +63,7 @@ void Engine::shutdown()
   }
   m_graphicsManager->shutdown();
   m_physicsManager->shutdown();
+  m_audioManager->shutdown();
 }
 
 void Engine::stopGame()
@@ -74,7 +78,6 @@ void Engine::tick(float dt)
     m_destroyQueue.pop();
     auto& gameObject = m_gameObjects.at(id);
     gameObject->shutdown();
-    gameObject->~GameObject();
     m_gameObjects.erase(id);
   }
   for (auto& [id, gameObject] : m_gameObjects) {
@@ -85,6 +88,7 @@ void Engine::tick(float dt)
   m_eventManager->tick(dt);
   m_graphicsManager->tick(dt);
   m_physicsManager->tick(dt);
+  m_audioManager->tick(dt);
 }
 
 void Engine::render()
@@ -97,6 +101,7 @@ void Engine::render()
     }
   }
   m_physicsManager->render();
+  m_audioManager->render();
   m_graphicsManager->postrender();
 }
 
@@ -114,6 +119,12 @@ EventManager& Engine::getEventManager()
 {
   return *reinterpret_cast<EventManager*>(Engine::get().m_eventManager.get());
 }
+
+AudioManager& Engine::getAudioManager()
+{
+  return *reinterpret_cast<AudioManager*>(Engine::get().m_audioManager.get());
+}
+
 
 Engine& Engine::get()
 {
@@ -167,15 +178,30 @@ void Engine::testCase1()
   if (player)
   {
     glm::vec2 frameSize = player->getTransform()->getScale();
-    m_physicsManager->setColliderOffset(playerId, glm::vec2(0.0f, 0.275f));
-    m_physicsManager->setColliderSize(playerId, glm::vec2(frameSize.x * 0.5f, frameSize.y * 0.65f));
+    m_physicsManager->setColliderOffset(playerId, glm::vec2(0.0f, 0.0f));
+    m_physicsManager->setColliderSize(playerId, glm::vec2(frameSize.x * 0.3f, frameSize.y * 0.45f));
   }
-  uint64_t platformId = addGameObject<GameObject>("platform", "assets/textures/blackBox");
+  m_eventManager->bindKey(GLFW_KEY_F1, GLFW_PRESS,
+    []() {
+      Engine::get().getPhysicsManager().toggleDebug();
+    }
+  );
+
+  uint64_t platformId = addGameObject<GameObject>("platform", "assets/textures/blackBox.png");
   m_physicsManager->registerCollisionComponent(platformId, "box", true);
   m_physicsManager->registerPhysicsComponent(platformId, BodyType::Static);
   auto platform = Engine::get().getGameObjectById(platformId);
   if (auto platformPointer = platform.lock()) {
-    platformPointer->getTransform()->setTranslation(glm::vec2(0.0f, -3.0f));
-    platformPointer->getTransform()->setScale(glm::vec2(8.0f, 0.5f));
+    platformPointer->getTransform()->setTranslation(glm::vec2(0.0f, -3.5f));
+    platformPointer->getTransform()->setScale(glm::vec2(8.0f, 0.75f));
+  }
+
+  uint64_t smallPlatformId = addGameObject<GameObject>("platform", "assets/textures/blackBox.png");
+  m_physicsManager->registerCollisionComponent(smallPlatformId, "box", true);
+  m_physicsManager->registerPhysicsComponent(smallPlatformId, BodyType::Static);
+  auto smallPlatform = Engine::get().getGameObjectById(smallPlatformId);
+  if (auto smallPlatformPointer = smallPlatform.lock()) {
+    smallPlatformPointer->getTransform()->setTranslation(glm::vec2(3.5f, -0.5f));
+    smallPlatformPointer->getTransform()->setScale(glm::vec2(5.0f, 0.75f));
   }
 }

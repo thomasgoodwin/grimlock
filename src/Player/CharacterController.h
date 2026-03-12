@@ -23,6 +23,8 @@ private:
   bool m_leftHeld = false;
   bool m_rightHeld = false;
   std::string m_direction = "right";
+  float m_coyoteTimer = 0.0f;
+  static constexpr float COYOTE_TIME = 0.1f;
 };
 
 #endif

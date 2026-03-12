@@ -1,5 +1,9 @@
 #define GRAVITY 9.8f
-#define MOVE_SPEED 4.0f
-#define JUMP_IMPULSE 6.0f
+#define FALL_GRAVITY_MULT 2.6f
+#define MOVE_SPEED 5.5f
+#define AIR_CONTROL 3.8f
+#define JUMP_IMPULSE 8.0f
+#define BULLET_SPEED 24.0f
 #define FALL_SPEED 8.0f
 #define PIXELS_PER_UNIT 16.0f
+#define LEVEL_FLOOR -6.0f

@@ -30,6 +30,8 @@ public:
   PhysicsComponent* getPhysicsComponent(uint64_t owner) const;
   void setColliderSize(uint64_t owner, const glm::vec2& size);
   void setColliderOffset(uint64_t owner, const glm::vec2& offset);
+  void toggleDebug() { m_drawDebug = !m_drawDebug; }
+  bool getDrawDebug() const { return m_drawDebug; }
 private:
   std::vector<std::unique_ptr<Collision>> m_dynamicColliders;
   std::vector<std::unique_ptr<Collision>> m_staticColliders;
@@ -38,6 +40,7 @@ private:
   std::shared_ptr<Shader> m_debugShader;
   std::shared_ptr<VAO> m_debugVAO;
   std::shared_ptr<VBO> m_debugVBO;
+  bool m_drawDebug = false;
 };
 
 #endif

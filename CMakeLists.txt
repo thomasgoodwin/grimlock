@@ -8,7 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CTest)
 enable_testing()
 
+
 add_subdirectory(glfw)
+set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(glew-cmake_BUILD_STATIC ON CACHE BOOL "" FORCE)
 add_subdirectory(glew)
 add_subdirectory(glm)
 
@@ -32,18 +35,31 @@ if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /FS)
 endif()
 
+set(FMOD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fmod/api")
+
 target_include_directories(${PROJECT_NAME} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
   ${CMAKE_CURRENT_SOURCE_DIR}/glew/include
   ${CMAKE_CURRENT_SOURCE_DIR}/glm/glm
   ${CMAKE_CURRENT_SOURCE_DIR}/stb/stb
   ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${FMOD_DIR}/core/inc
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
   glfw
   libglew_static
   glm::glm
+  ${FMOD_DIR}/core/lib/x64/fmod.lib
+)
+
+# Copy FMOD DLLs to output directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${FMOD_DIR}/core/lib/x64/fmod.dll"
+    "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+  COMMENT "Copying FMOD DLLs to build output directory..."
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")

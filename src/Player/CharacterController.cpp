@@ -8,6 +8,7 @@
 #include "Constants.h"
 #include "Physics/PhysicsManager.h"
 #include "Physics/PhysicsComponent.h"
+#include <algorithm>
 #include <iostream>
 
 CharacterController::CharacterController(uint64_t ownerId)
@@ -49,17 +50,21 @@ void CharacterController::initialize()
 
   uint64_t id = m_ownerId;
 
-  em.bindKey(GLFW_KEY_W, GLFW_PRESS, [id]() {
-    PhysicsComponent* physics = Engine::get().getPhysicsManager().getPhysicsComponent(id);
-    if (physics->getIsGrounded()) {
-      Engine::get().getEventManager().enqueue(MovementEvent(id, glm::vec2{ 0.0f, JUMP_IMPULSE }));
-      Engine::get().getEventManager().enqueue([id]() {
-        if (auto obj = Engine::get().getGameObjectById(id).lock())
-          if (auto anim = obj->getAnimatedSprite())
-            anim->triggerAnimation("jump");
-        });
+  em.bindKey(GLFW_KEY_W, GLFW_PRESS, [this, id]()
+    {
+      if (m_coyoteTimer > 0.0f)
+      {
+        m_coyoteTimer = 0.0f;
+        Engine::get().getEventManager().enqueue(MovementEvent(id, glm::vec2{ 0.0f, JUMP_IMPULSE }));
+        Engine::get().getEventManager().enqueue([id]() {
+          if (auto obj = Engine::get().getGameObjectById(id).lock())
+            if (auto anim = obj->getAnimatedSprite())
+              anim->triggerAnimation("jump");
+          }
+        );
+      }
     }
-    });
+  );
 
   em.bindKey(GLFW_KEY_S, GLFW_PRESS,
     [id]()
@@ -75,21 +80,36 @@ void CharacterController::tick(float dt)
   if (!physics)
     return;
 
+  if (physics->getIsGrounded())
+    m_coyoteTimer = COYOTE_TIME;
+  else
+    m_coyoteTimer = std::max(0.0f, m_coyoteTimer - dt);
+
   glm::vec2 velocity = physics->getVelocity();
+
+  float targetX = 0.0f;
+  bool hasInput = false;
 
   if (m_leftHeld && !m_rightHeld)
   {
-    velocity.x = -MOVE_SPEED;
-    physics->setHasMovementInput(true);
+    targetX = -MOVE_SPEED;
+    hasInput = true;
   }
   else if (m_rightHeld && !m_leftHeld)
   {
-    velocity.x = MOVE_SPEED;
-    physics->setHasMovementInput(true);
+    targetX = MOVE_SPEED;
+    hasInput = true;
   }
-  else
+
+  physics->setHasMovementInput(hasInput);
+
+  if (physics->getIsGrounded())
   {
-    physics->setHasMovementInput(false);
+    velocity.x = targetX;
+  }
+  else if (hasInput)
+  {
+    velocity.x += (targetX - velocity.x) * AIR_CONTROL * dt;
   }
 
   physics->setVelocity(velocity);
@@ -97,5 +117,5 @@ void CharacterController::tick(float dt)
 
 void CharacterController::shutdown()
 {
-  
+
 }

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe -Command \"Test-Path 'C:\\\\Windows\\\\System32\\\\VCRUNTIME140_APP.dll'; Get-ChildItem 'C:\\\\Windows\\\\System32\\\\VCRUNTIME140*' -ErrorAction SilentlyContinue | Select-Object Name\")"
+    ]
+  }
+}

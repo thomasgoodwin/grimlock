@@ -7,27 +7,16 @@ Texture::Texture(const std::string& path, bool flipVertically)
 {
   stbi_set_flip_vertically_on_load(flipVertically ? 1 : 0);
 
-  unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
+  unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 4);
   if (!data) {
     std::cerr << "Failed to load texture: " << path << std::endl;
     return;
   }
 
-  GLenum format = GL_RGB;
-  if (m_channels == 1) {
-    format = GL_RED;
-  }
-  else if (m_channels == 3) {
-    format = GL_RGB;
-  }
-  else if (m_channels == 4) {
-    format = GL_RGBA;
-  }
-
   glGenTextures(1, &m_ID);
   glBindTexture(GL_TEXTURE_2D, m_ID);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

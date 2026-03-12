@@ -6,8 +6,8 @@
 #include "Engine.h"
 #include <iostream>
 #include "GameObject/Bullet/BulletObject.h"
-#include "Physics/PhysicsManager.h"
-#include "Physics/PhysicsComponent.h"
+#include "Constants.h"
+#include "GameObject/Transform.h"
 
 // test
 static const char* ROBOT_SPRITE = "assets/pixel-asset-pack/Main_Characters/Char_Robot.png";
@@ -27,7 +27,8 @@ PlayerObject::PlayerObject(uint64_t id, const std::string& name)
   em.bindKey(
     GLFW_KEY_SPACE,
     GLFW_PRESS,
-    [this]() {
+    [this]()
+    {
       auto& direction = m_controller.getDirection();
       glm::vec2 velocity = glm::vec2{ 0.0f, 0.0f };
       if (direction == "right") {
@@ -36,9 +37,14 @@ PlayerObject::PlayerObject(uint64_t id, const std::string& name)
       else if (direction == "left") {
         velocity = glm::vec2{ -1.0f, 0.0f };
       }
-      std::cout << direction << std::endl;
-      auto newBulletId = Engine::get().addGameObject<BulletObject>("bullet", velocity, 2.0f);
-      Engine::get().getPhysicsManager().registerPhysicsComponent(newBulletId, BodyType::Dynamic);
+      auto newBulletId = Engine::get().addGameObject<BulletObject>("bullet", velocity, BULLET_SPEED);
+      if (auto bullet = Engine::get().getGameObjectById(newBulletId).lock())
+      {
+        glm::vec2 spawnPos = getTransform()->getTranslation() + velocity * 0.6f;
+        bullet->getTransform()->setTranslation(spawnPos + glm::vec2{ 0.0f, .2f });
+        float scaleX = (velocity.x < 0) ? -0.25f : 0.25f;
+        bullet->getTransform()->setScale(glm::vec2(scaleX, 0.25f));
+      }
     }
   );
 
@@ -55,6 +61,10 @@ void PlayerObject::tick(float dt)
 {
   GameObject::tick(dt);
   m_controller.tick(dt);
+  glm::vec2 pos = getTransform()->getTranslation();
+  if (pos.y < LEVEL_FLOOR) {
+    getTransform()->setTranslation(glm::vec2(0.0f, 0.0f));
+  }
 }
 
 void PlayerObject::shutdown()

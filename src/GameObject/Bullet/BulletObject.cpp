@@ -1,7 +1,7 @@
 #include "BulletObject.h"
 #include "Engine.h"
-#include "Events/MovementEvent.h"
-#include "Events/EventManager.h"
+#include "Constants.h"
+#include "GameObject/Transform.h"
 
 static const char* BULLET_ASSET = "assets/textures/bullet.png";
 
@@ -24,13 +24,15 @@ void BulletObject::initialize()
 void BulletObject::tick(float dt)
 {
   GameObject::tick(dt);
-  EventManager& em = Engine::get().getEventManager();
-  em.enqueue(MovementEvent(GameObject::getId(), m_speed * m_directionVector, true));
+
+  glm::vec2 pos = getTransform()->getTranslation();
+  pos += m_directionVector * m_speed * dt;
+  getTransform()->setTranslation(pos);
 
   m_timeToKill -= dt;
   if (m_timeToKill < 0) {
-    GameObject::markObjectForDestruction();
-    Engine::get().destroyObject(GameObject::getId());
+    markObjectForDestruction();
+    Engine::get().destroyObject(getId());
   }
 }
 

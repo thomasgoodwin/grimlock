@@ -12,6 +12,7 @@ class GraphicsManager;
 class PhysicsManager;
 class GameObject;
 class EventManager;
+class AudioManager;
 
 class Engine
 {
@@ -27,6 +28,7 @@ public:
   static GraphicsManager& getGraphicsManager();
   static PhysicsManager& getPhysicsManager();
   static EventManager& getEventManager();
+  static AudioManager& getAudioManager();
   std::weak_ptr<GameObject> getGameObjectById(uint64_t id);
   template <typename T, typename... Args>
   uint64_t addGameObject(Args&&... args)
@@ -49,6 +51,7 @@ private:
   std::unique_ptr<GraphicsManager> m_graphicsManager;
   std::unique_ptr<PhysicsManager> m_physicsManager;
   std::unique_ptr<EventManager> m_eventManager;
+  std::unique_ptr<AudioManager> m_audioManager;
   float m_deltaTime;
   bool m_gameIsRunning = true;
   std::chrono::system_clock::time_point m_currentTime;
