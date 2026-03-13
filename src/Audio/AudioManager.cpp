@@ -5,8 +5,7 @@
 
 AudioManager::AudioManager()
 {
-  FMOD_RESULT result;
-  result = FMOD::System_Create(&m_system);
+  FMOD_RESULT result = FMOD::System_Create(&m_system);
   if (result != FMOD_OK) {
     std::cerr << "FMOD System_Create failed: " << result << std::endl;
     return;
@@ -17,7 +16,7 @@ AudioManager::AudioManager()
     m_system->release();
     m_system = nullptr;
   }
-  
+
 }
 AudioManager::~AudioManager()
 {
@@ -25,7 +24,7 @@ AudioManager::~AudioManager()
 }
 void AudioManager::initialize()
 {
-  if (!m_system) 
+  if (!m_system)
     return;
 
   std::ifstream file("assets/SoundBank.json");
@@ -70,8 +69,7 @@ void AudioManager::playSound(const std::string& name)
 {
   if (m_soundBank.find(name) != m_soundBank.end())
   {
-    FMOD_RESULT result;
-    m_system->playSound(m_soundBank[name], nullptr, false, &m_mainChannel);
+    FMOD_RESULT result = m_system->playSound(m_soundBank[name], nullptr, false, &m_mainChannel);
     if (result != FMOD_OK) {
       std::cout << "Error playing sound: " << name << std::endl;
     }

@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include <iostream>
 #include "GameObject/Bullet/BulletObject.h"
+#include "Events/AudioEvent.h"
 #include "Constants.h"
 #include "GameObject/Transform.h"
 
@@ -29,6 +30,7 @@ PlayerObject::PlayerObject(uint64_t id, const std::string& name)
     GLFW_PRESS,
     [this]()
     {
+      EventManager& em = Engine::get().getEventManager();
       auto& direction = m_controller.getDirection();
       glm::vec2 velocity = glm::vec2{ 0.0f, 0.0f };
       if (direction == "right") {
@@ -37,13 +39,14 @@ PlayerObject::PlayerObject(uint64_t id, const std::string& name)
       else if (direction == "left") {
         velocity = glm::vec2{ -1.0f, 0.0f };
       }
+      em.enqueue(AudioEvent("laser"));
       auto newBulletId = Engine::get().addGameObject<BulletObject>("bullet", velocity, BULLET_SPEED);
       if (auto bullet = Engine::get().getGameObjectById(newBulletId).lock())
       {
         glm::vec2 spawnPos = getTransform()->getTranslation() + velocity * 0.6f;
         bullet->getTransform()->setTranslation(spawnPos + glm::vec2{ 0.0f, .2f });
-        float scaleX = (velocity.x < 0) ? -0.25f : 0.25f;
-        bullet->getTransform()->setScale(glm::vec2(scaleX, 0.25f));
+        float scaleX = (velocity.x < 0) ? -0.5f : 0.5f;
+        bullet->getTransform()->setScale(glm::vec2(scaleX, 0.5f));
       }
     }
   );

@@ -51,7 +51,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   glfw
   libglew_static
   glm::glm
-  ${FMOD_DIR}/core/lib/x64/fmod.lib
+  ${FMOD_DIR}/core/lib/x64/fmod_vc.lib
 )
 
 # Copy FMOD DLLs to output directory

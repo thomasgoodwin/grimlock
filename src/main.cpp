@@ -7,7 +7,6 @@
 
 int main(void)
 {
-  std::cout << "HERE" << std::endl;
   Engine& gameEngine = Engine::get();
 
   gameEngine.testCase1();
