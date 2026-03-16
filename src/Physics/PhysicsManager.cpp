@@ -62,15 +62,23 @@ void PhysicsManager::tick(float dt)
   for (int i = 0; i < m_dynamicColliders.size(); i++) {
     for (int j = i + 1; j < m_dynamicColliders.size(); j++) {
       CollisionInfo info = checkCollision(*m_dynamicColliders[i], *m_dynamicColliders[j]);
-      if (info.collision)
-        resolveCollision(*m_dynamicColliders[i], *m_dynamicColliders[j], info);
+      if (info.collision) {
+        m_dynamicColliders[i]->fireOnHit(m_dynamicColliders[j]->getOwnerId());
+        m_dynamicColliders[j]->fireOnHit(m_dynamicColliders[i]->getOwnerId());
+        if (!m_dynamicColliders[i]->getIsTrigger() && !m_dynamicColliders[j]->getIsTrigger())
+          resolveCollision(*m_dynamicColliders[i], *m_dynamicColliders[j], info);
+      }
     }
   }
   for (const auto& aCollider : m_dynamicColliders) {
     for (const auto& bCollider : m_staticColliders) {
       CollisionInfo info = checkCollision(*aCollider, *bCollider);
-      if (info.collision)
-        resolveCollision(*aCollider, *bCollider, info);
+      if (info.collision) {
+        aCollider->fireOnHit(bCollider->getOwnerId());
+        bCollider->fireOnHit(aCollider->getOwnerId());
+        if (!aCollider->getIsTrigger() && !bCollider->getIsTrigger())
+          resolveCollision(*aCollider, *bCollider, info);
+      }
     }
   }
 
@@ -240,7 +248,9 @@ Collision* PhysicsManager::getCollisionComponent(uint64_t owner) const
 void PhysicsManager::setColliderSize(uint64_t owner, const glm::vec2& size)
 {
   Collision* c = getCollisionComponent(owner);
-  if (c) c->setColliderSize(size);
+  if (c) {
+    c->setColliderSize(size);
+  }
 }
 
 void PhysicsManager::setColliderOffset(uint64_t owner, const glm::vec2& offset)
@@ -260,7 +270,7 @@ PhysicsComponent* PhysicsManager::getPhysicsComponent(uint64_t owner) const
 }
 void PhysicsManager::render()
 {
-  if (!m_drawDebug) 
+  if (!m_drawDebug)
     return;
 
   m_debugShader->activate();
@@ -298,6 +308,22 @@ void PhysicsManager::render()
 
   m_debugVAO->unbind();
 }
+void PhysicsManager::unregisterObject(uint64_t id)
+{
+  auto removeById = [id](auto& vec) {
+    vec.erase(
+      std::remove_if(vec.begin(), vec.end(),
+        [id](const auto& c) { 
+          return c->getOwnerId() == id; 
+        }),
+      vec.end()
+    );
+  };
+  removeById(m_dynamicColliders);
+  removeById(m_staticColliders);
+  removeById(m_physicsComponents);
+}
+
 void PhysicsManager::shutdown()
 {
 

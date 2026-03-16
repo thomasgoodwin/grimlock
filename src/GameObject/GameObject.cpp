@@ -142,10 +142,24 @@ std::shared_ptr<AnimatedSpriteComponent> GameObject::getAnimatedSprite()
   return m_animatedSprite;
 }
 
+void GameObject::attachHealth(float maxHp)
+{
+  m_health = std::make_unique<HealthComponent>(m_id, maxHp);
+}
+
+void GameObject::takeDamage(float amount)
+{
+  if (m_health)
+    m_health->takeDamage(amount);
+}
+
 void GameObject::applyForces(float dt)
 {
-  // apply gravity and momentum
-  glm::vec2 velocity = Engine::get().getPhysicsManager().getPhysicsComponent(m_id)->getVelocity();
+  PhysicsComponent* physics = Engine::get().getPhysicsManager().getPhysicsComponent(m_id);
+  if (!physics) {
+    return;
+  }
+  glm::vec2 velocity = physics->getVelocity();
   glm::vec2 position = m_transform->getTranslation();
   position += velocity * dt;
   m_transform->setTranslation(position);

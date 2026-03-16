@@ -9,6 +9,8 @@
 #include "Events/AudioEvent.h"
 #include "Constants.h"
 #include "GameObject/Transform.h"
+#include "Physics/PhysicsManager.h"
+#include "Physics/Collision/Collision.h"
 
 // test
 static const char* ROBOT_SPRITE = "assets/pixel-asset-pack/Main_Characters/Char_Robot.png";
@@ -19,7 +21,7 @@ PlayerObject::PlayerObject(uint64_t id, const std::string& name)
   : GameObject(id, name, ROBOT_SPRITE), m_controller(id)
 {
   attachAnimatedSprite(SHEET_COLS, SHEET_ROWS);
-
+  attachHealth(100.0f);
   auto anim = getAnimatedSprite();
   anim->addClip({ "idle", 2, 0, 2,  6.0f,  true });
   anim->addClip({ "run",  1, 0, 7,  12.0f, true });
@@ -43,10 +45,29 @@ PlayerObject::PlayerObject(uint64_t id, const std::string& name)
       auto newBulletId = Engine::get().addGameObject<BulletObject>("bullet", velocity, BULLET_SPEED);
       if (auto bullet = Engine::get().getGameObjectById(newBulletId).lock())
       {
-        glm::vec2 spawnPos = getTransform()->getTranslation() + velocity * 0.6f;
-        bullet->getTransform()->setTranslation(spawnPos + glm::vec2{ 0.0f, .2f });
+        glm::vec2 spawnPos = getTransform()->getTranslation() + velocity * BULLET_SPAWN_X_OFFSET;
+        spawnPos += glm::vec2{ 0.0f, BULLET_SPAWN_Y_OFFSET };
+        std::cout << "spawnPos: (" << spawnPos.x << ", " << spawnPos.y << ")" << std::endl;
+        bullet->getTransform()->setTranslation(spawnPos);
         float scaleX = (velocity.x < 0) ? -0.5f : 0.5f;
         bullet->getTransform()->setScale(glm::vec2(scaleX, 0.5f));
+
+        bool bulletIsHostile = bullet->isHostile();
+        Engine::get().getPhysicsManager().registerCollisionComponent(newBulletId, "box");
+        if (Collision* bulletCollider = Engine::get().getPhysicsManager().getCollisionComponent(newBulletId)) {
+          bulletCollider->setIsTrigger(true);
+          bulletCollider->setOnHit(
+            [newBulletId, bulletIsHostile, bullet](uint64_t otherId)
+            {
+              if (auto other = Engine::get().getGameObjectById(otherId).lock()) {
+                if (other->getHealth() && other->isHostile() != bulletIsHostile) {
+                  other->takeDamage((std::static_pointer_cast<BulletObject>(bullet))->getDamage());
+                  Engine::get().destroyObject(newBulletId);
+                }
+              }
+            }
+          );
+        }
       }
     }
   );

@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(powershell.exe -Command \"Test-Path 'C:\\\\Windows\\\\System32\\\\VCRUNTIME140_APP.dll'; Get-ChildItem 'C:\\\\Windows\\\\System32\\\\VCRUNTIME140*' -ErrorAction SilentlyContinue | Select-Object Name\")"
+      "Bash(powershell.exe -Command \"Test-Path 'C:\\\\Windows\\\\System32\\\\VCRUNTIME140_APP.dll'; Get-ChildItem 'C:\\\\Windows\\\\System32\\\\VCRUNTIME140*' -ErrorAction SilentlyContinue | Select-Object Name\")",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(python3:*)"
     ]
   }
 }

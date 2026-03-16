@@ -6,6 +6,7 @@
 #include "Physics/PhysicsComponent.h"
 #include "GameObject/GameObject.h"
 #include "Player/PlayerObject.h"
+#include "GameObject/MeleeEnemy/MeleeEnemy.h"
 #include "Events/EventManager.h"
 #include "Audio/AudioManager.h"
 #include "Engine.h"
@@ -45,7 +46,7 @@ void Engine::gameLoop()
   auto newCurrentTime = std::chrono::system_clock::now();
   std::chrono::duration<float> elapsedTime = (newCurrentTime - m_currentTime);
   m_currentTime = newCurrentTime;
-  float dt = elapsedTime.count();
+  float dt = std::min(elapsedTime.count(), 1.0f / 144.0f); // cap at ~30fps min
   m_deltaTime = dt;
   tick(dt);
   render();
@@ -76,9 +77,12 @@ void Engine::tick(float dt)
   while (!m_destroyQueue.empty()) {
     uint64_t id = m_destroyQueue.front();
     m_destroyQueue.pop();
-    auto& gameObject = m_gameObjects.at(id);
-    gameObject->shutdown();
-    m_gameObjects.erase(id);
+    auto it = m_gameObjects.find(id);
+    if (it == m_gameObjects.end())
+      continue;
+    it->second->shutdown();
+    m_physicsManager->unregisterObject(id);
+    m_gameObjects.erase(it);
   }
   for (auto& [id, gameObject] : m_gameObjects) {
     if (!gameObject->isDisabled()) {
@@ -203,5 +207,17 @@ void Engine::testCase1()
   if (auto smallPlatformPointer = smallPlatform.lock()) {
     smallPlatformPointer->getTransform()->setTranslation(glm::vec2(3.5f, -0.5f));
     smallPlatformPointer->getTransform()->setScale(glm::vec2(5.0f, 0.75f));
+  }
+
+  uint64_t enemyId = addGameObject<MeleeEnemy>("melee_enemy");
+  m_physicsManager->registerCollisionComponent(enemyId, "box");
+  m_physicsManager->registerPhysicsComponent(enemyId, BodyType::Dynamic);
+  auto enemy = getGameObjectById(enemyId).lock();
+  if (enemy)
+  {
+    enemy->getTransform()->setTranslation(glm::vec2(2.0f, 0.0f));
+    glm::vec2 frameSize = enemy->getTransform()->getScale();
+    m_physicsManager->setColliderOffset(enemyId, glm::vec2(0.0f, -0.37f));
+    m_physicsManager->setColliderSize(enemyId, glm::vec2(frameSize.x * 0.3f, frameSize.y * 0.68f));
   }
 }

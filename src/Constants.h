@@ -3,7 +3,10 @@
 #define MOVE_SPEED 5.5f
 #define AIR_CONTROL 3.8f
 #define JUMP_IMPULSE 8.0f
-#define BULLET_SPEED 28.0f
+#define BULLET_SPEED 40.0f
 #define FALL_SPEED 8.0f
 #define PIXELS_PER_UNIT 16.0f
 #define LEVEL_FLOOR -6.0f
+
+#define BULLET_SPAWN_X_OFFSET 0.33f
+#define BULLET_SPAWN_Y_OFFSET 0.1f

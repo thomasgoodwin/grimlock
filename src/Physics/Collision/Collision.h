@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <memory>
+#include <functional>
 
 class GameObject;
 class Transform;
@@ -34,9 +35,13 @@ public:
   glm::vec2 getColliderOffset() const;
   glm::vec2 getColliderCenter() const;
 
+  void setOnHit(std::function<void(uint64_t)> callback) { m_onHit = std::move(callback); }
+  void fireOnHit(uint64_t otherId) { if (m_onHit) m_onHit(otherId); }
+
 private:
   bool m_isStatic = false;
   bool m_isTrigger = false;
+  std::function<void(uint64_t)> m_onHit;
   uint64_t m_owner;
   std::string m_type = "";
   glm::vec2 m_sizeOverride = glm::vec2(-1.0f);

@@ -30,6 +30,7 @@ public:
   PhysicsComponent* getPhysicsComponent(uint64_t owner) const;
   void setColliderSize(uint64_t owner, const glm::vec2& size);
   void setColliderOffset(uint64_t owner, const glm::vec2& offset);
+  void unregisterObject(uint64_t id);
   void toggleDebug() { m_drawDebug = !m_drawDebug; }
   bool getDrawDebug() const { return m_drawDebug; }
 private:

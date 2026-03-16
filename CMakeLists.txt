@@ -32,7 +32,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 )
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /FS)
+  target_compile_options(${PROJECT_NAME} PRIVATE /FS /Zi)
+  target_link_options(${PROJECT_NAME} PRIVATE /DEBUG)
 endif()
 
 set(FMOD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fmod/api")
@@ -53,6 +54,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   glm::glm
   ${FMOD_DIR}/core/lib/x64/fmod_vc.lib
 )
+
+if(WIN32)
+  target_link_libraries(${PROJECT_NAME} PRIVATE dbghelp)
+endif()
 
 # Copy FMOD DLLs to output directory
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

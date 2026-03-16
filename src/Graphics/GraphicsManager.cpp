@@ -68,6 +68,7 @@ bool GraphicsManager::initGLFW()
   }
 
   glfwMakeContextCurrent(m_window);
+  glfwSwapInterval(1); // vsync 
 
   return true;
 }

@@ -11,6 +11,7 @@
 #include "Graphics/VAO.h"
 #include "Graphics/EBO.h"
 #include "Graphics/AnimatedSpriteComponent.h"
+#include "HealthComponent.h"
 
 class GameObject
 {
@@ -42,6 +43,13 @@ public:
   void attachAnimatedSprite(int sheetCols, int sheetRows);
   std::shared_ptr<AnimatedSpriteComponent> getAnimatedSprite();
 
+  void attachHealth(float maxHp);
+  void takeDamage(float amount);
+  HealthComponent* getHealth() const { return m_health.get(); }
+
+  bool isHostile() const { return m_isHostile; }
+  void setIsHostile(bool hostile) { m_isHostile = hostile; }
+
   void applyForces(float dt);
 
   uint64_t getId() const;
@@ -61,7 +69,9 @@ private:
   std::vector<float> m_vertices;
   std::vector<unsigned int> m_indices;
   uint64_t m_id;
+  bool m_isHostile = false;
   std::shared_ptr<AnimatedSpriteComponent> m_animatedSprite;
+  std::unique_ptr<HealthComponent> m_health = nullptr;
 };
 
 #endif

@@ -4,9 +4,12 @@
 #include <sstream>
 #include <cmath>
 #include "Engine.h"
+#include "Test/CrashHandler.h"
 
 int main(void)
 {
+  installCrashHandler();
+
   Engine& gameEngine = Engine::get();
 
   gameEngine.testCase1();
