@@ -155,6 +155,15 @@ std::weak_ptr<GameObject> Engine::getGameObjectById(uint64_t id)
   return m_gameObjects[id];
 }
 
+std::weak_ptr<GameObject> Engine::getPlayerObject()
+{
+  for (auto& [id, gameObject] : m_gameObjects) {
+    if (gameObject->getTypename() == "PlayerObject")
+      return gameObject;
+  }
+  return std::weak_ptr<GameObject>();
+}
+
 void Engine::destroyObject(uint64_t id) {
   m_destroyQueue.push(id);
 }
@@ -197,7 +206,7 @@ void Engine::testCase1()
   auto platform = Engine::get().getGameObjectById(platformId);
   if (auto platformPointer = platform.lock()) {
     platformPointer->getTransform()->setTranslation(glm::vec2(0.0f, -3.5f));
-    platformPointer->getTransform()->setScale(glm::vec2(8.0f, 0.75f));
+    platformPointer->getTransform()->setScale(glm::vec2(20.0f, 0.75f));
   }
 
   uint64_t smallPlatformId = addGameObject<GameObject>("platform", "assets/textures/blackBox.png");
@@ -206,7 +215,7 @@ void Engine::testCase1()
   auto smallPlatform = Engine::get().getGameObjectById(smallPlatformId);
   if (auto smallPlatformPointer = smallPlatform.lock()) {
     smallPlatformPointer->getTransform()->setTranslation(glm::vec2(3.5f, -0.5f));
-    smallPlatformPointer->getTransform()->setScale(glm::vec2(5.0f, 0.75f));
+    smallPlatformPointer->getTransform()->setScale(glm::vec2(7.0f, 0.75f));
   }
 
   uint64_t enemyId = addGameObject<MeleeEnemy>("melee_enemy");
@@ -215,9 +224,9 @@ void Engine::testCase1()
   auto enemy = getGameObjectById(enemyId).lock();
   if (enemy)
   {
-    enemy->getTransform()->setTranslation(glm::vec2(2.0f, 0.0f));
+    enemy->getTransform()->setTranslation(glm::vec2(6.0f, 0.0f));
     glm::vec2 frameSize = enemy->getTransform()->getScale();
-    m_physicsManager->setColliderOffset(enemyId, glm::vec2(0.0f, -0.37f));
-    m_physicsManager->setColliderSize(enemyId, glm::vec2(frameSize.x * 0.3f, frameSize.y * 0.68f));
+    m_physicsManager->setColliderOffset(enemyId, glm::vec2(0.0f, -0.2f));
+    m_physicsManager->setColliderSize(enemyId, glm::vec2(frameSize.x * 0.3f, frameSize.y * 0.48f));
   }
 }

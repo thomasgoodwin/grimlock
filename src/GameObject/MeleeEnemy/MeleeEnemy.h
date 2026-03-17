@@ -4,6 +4,7 @@
 #include <string>
 #include "GameObject/GameObject.h"
 #include "AI/BehaviorComponent.h"
+#include "AI/MeleeBehavior.h"
 
 class MeleeEnemy : public GameObject
 {

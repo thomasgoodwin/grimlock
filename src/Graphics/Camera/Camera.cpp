@@ -4,7 +4,7 @@
 
 Camera::Camera(int screenWidth, int screenHeight)
   : m_width(screenWidth), m_height(screenHeight),
-  m_position(0.0f), m_zoom(1.0f), m_rotation(0.0f)
+  m_position(0.0f), m_zoom(0.5f), m_rotation(0.0f)
 {
 }
 

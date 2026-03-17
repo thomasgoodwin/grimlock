@@ -30,6 +30,7 @@ public:
   static EventManager& getEventManager();
   static AudioManager& getAudioManager();
   std::weak_ptr<GameObject> getGameObjectById(uint64_t id);
+  std::weak_ptr<GameObject> getPlayerObject();
   template <typename T, typename... Args>
   uint64_t addGameObject(Args&&... args)
   {

@@ -12,12 +12,12 @@ void AnimatedSpriteComponent::addClip(const AnimationClip& clip)
 
 void AnimatedSpriteComponent::setCyclingAnimation(const std::string& name)
 {
-  if (m_clips.find(name) == m_clips.end()) 
+  if (m_clips.find(name) == m_clips.end())
     return;
 
   m_cyclingClipName = name;
 
-  if (m_mode != AnimationPlayMode::Event)
+  if (m_mode != AnimationPlayMode::Event && m_currentClipName != name)
   {
     m_currentClipName = name;
     m_currentFrame = m_clips.at(name).startFrame;
@@ -82,8 +82,8 @@ glm::vec2 AnimatedSpriteComponent::getUVOffset() const
 
   const AnimationClip& clip = m_clips.at(m_currentClipName);
 
-  float x = static_cast<float>(m_currentFrame) / static_cast<float>(m_sheetCols);
-  float y = static_cast<float>(m_sheetRows - 1 - clip.row) / static_cast<float>(m_sheetRows);
+  float x = static_cast<float>(m_currentFrame) / static_cast<float>(m_sheetCols) + clip.offsetX;
+  float y = static_cast<float>(m_sheetRows - 1 - clip.row) / static_cast<float>(m_sheetRows) - clip.offsetY;
 
   if (m_flipX)
     x += 1.0f / static_cast<float>(m_sheetCols);
@@ -102,6 +102,11 @@ glm::vec2 AnimatedSpriteComponent::getUVScale() const
 bool AnimatedSpriteComponent::hasActiveAnimation() const
 {
   return !m_currentClipName.empty();
+}
+
+bool AnimatedSpriteComponent::isEventMode() const
+{
+  return m_mode == AnimationPlayMode::Event;
 }
 
 void AnimatedSpriteComponent::setFlipX(bool flip)

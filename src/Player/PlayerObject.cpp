@@ -47,7 +47,6 @@ PlayerObject::PlayerObject(uint64_t id, const std::string& name)
       {
         glm::vec2 spawnPos = getTransform()->getTranslation() + velocity * BULLET_SPAWN_X_OFFSET;
         spawnPos += glm::vec2{ 0.0f, BULLET_SPAWN_Y_OFFSET };
-        std::cout << "spawnPos: (" << spawnPos.x << ", " << spawnPos.y << ")" << std::endl;
         bullet->getTransform()->setTranslation(spawnPos);
         float scaleX = (velocity.x < 0) ? -0.5f : 0.5f;
         bullet->getTransform()->setScale(glm::vec2(scaleX, 0.5f));

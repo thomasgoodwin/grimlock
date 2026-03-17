@@ -28,6 +28,7 @@ public:
   glm::vec2 getUVScale() const;
 
   bool hasActiveAnimation() const;
+  bool isEventMode() const;
 
   void setFlipX(bool flip);
 
