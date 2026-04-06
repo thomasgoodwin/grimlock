@@ -2,6 +2,7 @@
 #include "AI/MeleeBehavior.h"
 #include "MeleeEnemy.h"
 #include "Engine.h"
+#include <glm/glm.hpp>
 
 static const char* MELEE_ENEMY_SPRITE = "assets/pixel-asset-pack/Enemies/Alien6.png";
 static const int SHEET_COLS = 8;
@@ -35,6 +36,11 @@ void MeleeEnemy::initialize()
 void MeleeEnemy::tick(float dt)
 {
   GameObject::tick(dt);
+  if (m_damageTintTimer > 0.0f) {
+    m_damageTintTimer -= dt;
+    float t = glm::max(m_damageTintTimer / DAMAGE_TINT_DURATION, 0.0f);
+    setTint(glm::vec4(1.0f, 1.0f - t, 1.0f - t, 1.0f));
+  }
   if (m_behavior)
     m_behavior->tick(dt);
 }
@@ -44,6 +50,15 @@ void MeleeEnemy::shutdown()
   if (m_behavior)
     m_behavior->shutdown();
   GameObject::shutdown();
+}
+
+void MeleeEnemy::takeDamage(float amount)
+{
+  GameObject::takeDamage(amount);
+  m_damageTintTimer = DAMAGE_TINT_DURATION;
+  setTint(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+  if (m_behavior)
+    m_behavior->notifyHit();
 }
 
 void MeleeEnemy::setBehavior(std::unique_ptr<BehaviorComponent> behavior)

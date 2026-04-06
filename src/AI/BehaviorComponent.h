@@ -11,6 +11,7 @@ public:
   virtual void initialize() {}
   virtual void tick(float dt) {}
   virtual void shutdown() {}
+  virtual void notifyHit() {}
 
 protected:
   uint64_t m_ownerId;

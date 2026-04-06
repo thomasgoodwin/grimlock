@@ -11,6 +11,7 @@
 #include "GameObject/Transform.h"
 #include "Physics/PhysicsManager.h"
 #include "Physics/Collision/Collision.h"
+#include <glm/glm.hpp>
 
 // test
 static const char* ROBOT_SPRITE = "assets/pixel-asset-pack/Main_Characters/Char_Robot.png";
@@ -84,10 +85,24 @@ void PlayerObject::tick(float dt)
 {
   GameObject::tick(dt);
   m_controller.tick(dt);
+  if (m_damageTintTimer > 0.0f) {
+    m_damageTintTimer -= dt;
+    float t = glm::max(m_damageTintTimer / DAMAGE_TINT_DURATION, 0.0f);
+    setTint(glm::vec4(1.0f, 1.0f - t, 1.0f - t, 1.0f));
+  }
   glm::vec2 pos = getTransform()->getTranslation();
   if (pos.y < LEVEL_FLOOR) {
     getTransform()->setTranslation(glm::vec2(0.0f, 0.0f));
   }
+}
+
+void PlayerObject::takeDamage(float amount)
+{
+  std::cout << "[PlayerObject] took " << amount << " damage from melee hit. HP: "
+    << (getHealth() ? getHealth()->getHp() - amount : 0.0f) << "\n";
+  GameObject::takeDamage(amount);
+  m_damageTintTimer = DAMAGE_TINT_DURATION;
+  setTint(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 }
 
 void PlayerObject::shutdown()

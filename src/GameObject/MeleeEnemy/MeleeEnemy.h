@@ -17,11 +17,14 @@ public:
 
   const std::string getTypename() const override { return "MeleeEnemy"; }
 
+  void takeDamage(float amount) override;
   void setBehavior(std::unique_ptr<BehaviorComponent> behavior);
   BehaviorComponent* getBehavior() const { return m_behavior.get(); }
 
 private:
   std::unique_ptr<BehaviorComponent> m_behavior;
+  float m_damageTintTimer = 0.0f;
+  static constexpr float DAMAGE_TINT_DURATION = 1.3f;
 };
 
 #endif

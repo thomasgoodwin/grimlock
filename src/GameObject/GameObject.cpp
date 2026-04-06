@@ -82,6 +82,7 @@ void GameObject::render()
   m_shader->setMat4("projection", projection);
   m_texture->bind(0);
   m_shader->setUniform1i("tex0", 0);
+  m_shader->setVec4("tint", m_tint);
 
   if (m_animatedSprite && m_animatedSprite->hasActiveAnimation())
   {

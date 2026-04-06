@@ -44,11 +44,14 @@ public:
   std::shared_ptr<AnimatedSpriteComponent> getAnimatedSprite();
 
   void attachHealth(float maxHp);
-  void takeDamage(float amount);
+  virtual void takeDamage(float amount);
   HealthComponent* getHealth() const { return m_health.get(); }
 
   bool isHostile() const { return m_isHostile; }
   void setIsHostile(bool hostile) { m_isHostile = hostile; }
+
+  void setTint(const glm::vec4& tint) { m_tint = tint; }
+  const glm::vec4& getTint() const { return m_tint; }
 
   void applyForces(float dt);
 
@@ -70,6 +73,7 @@ private:
   std::vector<unsigned int> m_indices;
   uint64_t m_id;
   bool m_isHostile = false;
+  glm::vec4 m_tint = glm::vec4(1.0f);
   std::shared_ptr<AnimatedSpriteComponent> m_animatedSprite;
   std::unique_ptr<HealthComponent> m_health = nullptr;
 };

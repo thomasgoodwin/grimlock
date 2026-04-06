@@ -12,11 +12,14 @@ public:
   void initialize() override;
   void tick(float dt) override;
   void shutdown() override;
+  void takeDamage(float amount) override;
 
   const std::string getTypename() const override { return "PlayerObject"; };
 
 private:
   CharacterController m_controller;
+  float m_damageTintTimer = 0.0f;
+  static constexpr float DAMAGE_TINT_DURATION = 1.3f;
 };
 
 #endif
